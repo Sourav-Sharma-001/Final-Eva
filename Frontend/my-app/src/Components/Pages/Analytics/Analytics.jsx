@@ -1,5 +1,5 @@
-import React from 'react'
-import './Analytics.css'
+import React from "react";
+import "./Analytics.css";
 
 export default function Analytics() {
   const chefs = [
@@ -7,10 +7,10 @@ export default function Analytics() {
     { name: "Pritam", orders: 7 },
     { name: "Yash", orders: 5 },
     { name: "Tenzen", orders: 8 },
-  ]
+  ];
 
-  const tables = Array.from({ length: 30 }, (_, i) => i + 1)
-  const reservedTables = [4, 5, 6, 7, 22, 23, 29, 30]
+  const tables = Array.from({ length: 30 }, (_, i) => i + 1);
+  const reservedTables = [4, 5, 6, 7, 22, 23, 29, 30];
 
   return (
     <div className="analytics-container">
@@ -75,12 +75,21 @@ export default function Analytics() {
           <div className="pie">
             <div className="circle"></div>
             <div className="bar">
-              <p>Take Away (24%)</p>
-              <div className="bar-line"></div>
-              <p>Served (41%)</p>
-              <div className="bar-line"></div>
-              <p>Dine In (39%)</p>
-              <div className="bar-line"></div>
+              <div className="bar-block">
+                <div>Take Away </div>
+                <div>(24%)</div>
+                <div className="bar-line"></div>
+              </div>
+              <div className="bar-block">
+                <div>Take Away </div>
+                <div>(24%)</div>
+                <div className="bar-line"></div>
+              </div>
+              <div className="bar-block">
+                <div>Take Away </div>
+                <div>(24%)</div>
+                <div className="bar-line"></div>
+              </div>              
             </div>
           </div>
         </div>
@@ -140,5 +149,5 @@ export default function Analytics() {
         </table>
       </div>
     </div>
-  )
+  );
 }

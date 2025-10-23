@@ -8,14 +8,14 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <h2 className="logo">API Management</h2>
+      
       <nav>
         <ul>
           <li className={location.pathname === "/" ? "active" : ""}>
-            <Link to="/"><FaHome /> Home</Link>
+            <Link to="/"><FaHome /> Analytics</Link>
           </li>
           <li className={location.pathname === "/tracer" ? "active" : ""}>
-            <Link to="/tracer"><FaStream /> Tracer</Link>
+            <Link to="/tracer"><FaStream /> Tables</Link>
           </li>
           <li className={location.pathname === "/analysis" ? "active" : ""}>
             <Link to="/analysis"><FaChartBar /> Analysis</Link>
