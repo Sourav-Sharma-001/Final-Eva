@@ -1,0 +1,166 @@
+:root {
+  --bg: #ffffff;
+  --card-bg: #eef2f1;
+  --card-border: #d6d9d9;
+  --muted: #8b8f8f;
+  --title: #333;
+  --delete-size: 1.125rem; /* 18px → 1.125rem */
+  --card-size: 7.5rem; /* 120px → 7.5rem */
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+/* page layout */
+.tables-page {
+  padding: 1.25rem; /* 20px */
+  box-sizing: border-box;
+  color: var(--title);
+  background: transparent;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* header */
+.tables-header h1 {
+  margin: 0 0 0.75rem 0; /* 18px → 0.75rem */
+  font-weight: 600;
+  font-size: 1.8rem; /* 40px → 1.8rem */
+  color: #4a4a4a;
+}
+
+/* grid */
+.tables-main {
+  width: 100%;
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
+  gap: 0.75rem; /* 18px → 0.75rem */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* card */
+.table-card {
+  position: relative;
+  height: 5rem; /* 120px → 7.5rem */
+  min-width: var(--card-size);
+  border-radius: 0.5rem; /* 8px */
+  background: linear-gradient(180deg, #eef6f5 0%, #eef2f1 100%);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 0.05rem 0 rgba(0, 0, 0, 0.06), inset 0 0.05rem 0 rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem; /* 10px */
+  cursor: default;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+  overflow: hidden;
+}
+
+.table-card:focus {
+  outline: none;
+  transform: translateY(-0.25rem);
+  box-shadow: 0 0.5rem 1rem rgba(13, 27, 34, 0.12);
+}
+
+/* delete button */
+.delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.5rem; /* 28px → 1.5rem */
+  height: 1.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+
+.delete-btn:hover {
+  transform: translateY(-0.1rem);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+}
+
+/* content */
+.table-content {
+  text-align: center;
+  pointer-events: none;
+}
+
+.table-label {
+  font-size: 1rem; /* 20px → 1rem */
+  color: #2d2d2d;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.2px;
+}
+
+.table-number {
+  font-size: 1.8rem; /* 36px → 1.8rem */
+  font-weight: 700;
+  color: #111;
+  line-height: 1;
+}
+
+/* footer icon text */
+.table-footer {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.75rem; /* 11px → 0.65rem */
+  color: black;
+  font-weight: bold;
+  display: flex;           /* enable flexbox */
+  align-items: center;     /* vertical alignment */
+  gap: 0.25rem;            /* optional spacing between icon and text */
+}
+
+
+/* add card */
+.add-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #cfcfcf;
+  background: transparent;
+}
+
+.add-card .add-plus {
+  font-size: 1.8rem; /* 34px → 1.8rem */
+  color: #6f6f6f;
+  line-height: 1;
+}
+
+/* responsive */
+@media (min-width: 75rem) {
+  /* 1200px */
+  .tables-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 40rem) {
+  /* 640px */
+  .table-number {
+    font-size: 1.4rem;
+  }
+
+  .table-label {
+    font-size: 0.9rem;
+  }
+
+  .tables-header h1 {
+    font-size: 1.4rem;
+  }
+}

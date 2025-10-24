@@ -25,7 +25,7 @@ export default function Sidebar() {
             </Link>
           </li>
           <li className={location.pathname === "/tracer" ? "active" : ""}>
-            <Link to="/tracer">
+            <Link to="/tables">
               <LuArmchair />
             </Link>
           </li>
