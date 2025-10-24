@@ -14,6 +14,7 @@ export default function Analytics() {
 
   return (
     <div className="analytics-container">
+      <input className="search-input" placeholder="Filter..." />
       <h2 className="title">Analytics</h2>
 
       <div className="stats">

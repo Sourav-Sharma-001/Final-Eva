@@ -13,9 +13,42 @@
   gap: 1rem;
 }
 
+.analytics-container h1,
+.analytics-container h2,
+.analytics-container h3,
+.analytics-container h4,
+.analytics-container h5,
+.analytics-container h6 {
+  margin: 0.5rem;
+}
+
+
+.search-input {
+  width: 30%;
+  padding: 0.75rem 1rem;
+  border-radius: 2rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #333;
+  background: white;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.search-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
 .title {
   font-size: clamp(1rem, 2vw, 1.5rem);
   text-align: left;
+  margin: 0;
 }
 
 .stats {
