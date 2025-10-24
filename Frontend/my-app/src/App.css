@@ -6,12 +6,12 @@
 }
 
 .sidebar-container {
-  width: 12vw;
+  width: 5vw;
   height: 100vh;
 }
 
 .pages-container {
-  width: 88vw;
+  width: 95vw;
   height: 100vh;
   overflow-y: auto;
 }

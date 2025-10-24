@@ -1,5 +1,5 @@
 .sidebar {
-  width: 80%;
+  width: 50%;
   height: 100%;
   background: #04070a;
   padding: 1.25rem;
@@ -8,7 +8,10 @@
 }
 
 .sidebar .logo {
-  font-size: 1.1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  justify-self: center;
 }
 
 .sidebar ul {

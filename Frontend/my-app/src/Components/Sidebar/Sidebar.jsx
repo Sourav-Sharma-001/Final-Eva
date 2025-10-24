@@ -1,6 +1,10 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaStream, FaChartBar, FaCog } from "react-icons/fa";
+import { FaStream, FaChartBar } from "react-icons/fa";
+import { LuArmchair } from "react-icons/lu";
+import { MdOutlineSpaceDashboard } from "react-icons/md";
+
+
 import "./Sidebar.css";
 
 export default function Sidebar() {
@@ -8,20 +12,32 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      
+      <img
+        src="https://www.logologo.com/logos/abstract-isometric-logo-design-free-logo.jpg"
+        alt="logo"
+        className="logo"
+      />
       <nav>
         <ul>
           <li className={location.pathname === "/" ? "active" : ""}>
-            <Link to="/"><FaHome /> Analytics</Link>
+            <Link to="/">
+              <MdOutlineSpaceDashboard />
+            </Link>
           </li>
           <li className={location.pathname === "/tracer" ? "active" : ""}>
-            <Link to="/tracer"><FaStream /> Tables</Link>
+            <Link to="/tracer">
+              <LuArmchair />
+            </Link>
           </li>
           <li className={location.pathname === "/analysis" ? "active" : ""}>
-            <Link to="/analysis"><FaChartBar /> Analysis</Link>
+            <Link to="/analysis">
+              <FaStream />
+            </Link>
           </li>
           <li className={location.pathname === "/config" ? "active" : ""}>
-            <Link to="/config"><FaCog /> Configuration</Link>
+            <Link to="/config">
+              <FaChartBar />
+            </Link>
           </li>
         </ul>
       </nav>

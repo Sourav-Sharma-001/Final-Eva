@@ -111,7 +111,6 @@ select {
   display: flex;
   justify-content: space-between;
   place-items: center;
-  background-color: yellow;
 }
 
 .bar p {
