@@ -8,8 +8,7 @@
 }
 
 .order-line {
-  font-family: "Arial", sans-serif;
-  background-color: #fff;
+  font-family: "Arial", sans-serif;  
   padding: 2rem;
 }
 
@@ -17,7 +16,7 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: var(--font-color);
+  color: white;
 }
 
 .order-grid {
