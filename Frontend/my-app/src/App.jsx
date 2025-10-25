@@ -3,6 +3,7 @@ import Analytics from "./Components/Pages/Analytics/Analytics";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import "./App.css"; // optional: if you have styles for App
 import Tables from "./Components/Pages/Tables/Tables";
+import OrderLine from "./Components/Pages/OrderLIne/OrderLIne";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Analytics />} />
           <Route path="/tables" element={<Tables />} />
+          <Route path="/orderLine" element={<OrderLine />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

@@ -1,0 +1,136 @@
+:root {
+  --orange-bg: #ffe8c5;
+  --green-bg: #d4f8d4;
+  --grey-bg: #dbe2e8;
+  --card-radius: 1.5rem;
+  --font-color: #333;
+  --small-text: 0.8rem;
+}
+
+.order-line {
+  font-family: "Arial", sans-serif;
+  background-color: #fff;
+  padding: 2rem;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--font-color);
+}
+
+.order-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.5rem;
+}
+
+.order-card {
+  border-radius: var(--card-radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: var(--small-text);
+}
+
+.order-card.orange {
+  background-color: var(--orange-bg);
+}
+
+.order-card.green {
+  background-color: var(--green-bg);
+}
+
+.order-card.grey {
+  background-color: var(--grey-bg);
+}
+
+/* Header */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.order-number {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.order-type {
+  text-align: right;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.orange-tag {
+  background-color: #fcd7a4;
+  color: #a86500;
+}
+
+.green-tag {
+  background-color: #b2f3b2;
+  color: #056b05;
+}
+
+.grey-tag {
+  background-color: #c6cdd3;
+  color: #333;
+}
+
+/* Body */
+.order-body {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.meal-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.order-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.order-body li {
+  margin-bottom: 0.3rem;
+}
+
+/* Footer */
+.order-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.order-btn {
+  border: none;
+  border-radius: 2rem;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.orange-btn {
+  background-color: #f9c27b;
+  color: #5a3200;
+}
+
+.green-btn {
+  background-color: #4cd964;
+  color: white;
+}
+
+.grey-btn {
+  background-color: #6c757d;
+  color: white;
+}

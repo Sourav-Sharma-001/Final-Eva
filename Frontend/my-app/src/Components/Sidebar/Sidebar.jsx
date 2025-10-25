@@ -30,7 +30,7 @@ export default function Sidebar() {
             </Link>
           </li>
           <li className={location.pathname === "/analysis" ? "active" : ""}>
-            <Link to="/analysis">
+            <Link to="/orderLine">
               <FaStream />
             </Link>
           </li>
