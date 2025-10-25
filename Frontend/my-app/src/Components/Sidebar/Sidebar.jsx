@@ -35,7 +35,7 @@ export default function Sidebar() {
             </Link>
           </li>
           <li className={location.pathname === "/config" ? "active" : ""}>
-            <Link to="/config">
+            <Link to="/foodItems">
               <FaChartBar />
             </Link>
           </li>

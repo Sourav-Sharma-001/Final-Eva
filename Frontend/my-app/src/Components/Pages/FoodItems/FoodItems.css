@@ -1,0 +1,79 @@
+:root {
+  --bg-color: #edf3f1;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --border-radius: 1rem;
+}
+
+.food-page {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: "Arial", sans-serif;
+  box-sizing: border-box;
+}
+
+/* Top Bar with Left-Aligned Search */
+.top-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.search-box {
+  width: 18rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 2rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: var(--text-color);
+  background-color: #fff;
+  box-shadow: 0 0.1rem 0.4rem rgba(0, 0, 0, 0.1);
+}
+
+/* Grid Layout */
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 2rem;
+  justify-content: center;
+}
+
+/* Card */
+.food-card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-0.3rem);
+}
+
+/* Image Placeholder */
+.food-img {
+  background-color: #e6e6e6;
+  color: #555;
+  height: 8rem;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* Info Section */
+.food-info p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.food-info strong {
+  font-weight: 600;
+}
