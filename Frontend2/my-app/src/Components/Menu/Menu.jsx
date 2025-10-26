@@ -47,19 +47,21 @@ export default function Menu() {
 
       <h3 className="section-title">{active}</h3>
 
-      <div className="grid">
-        {pizzas.map((p) => (
-          <div key={p.name + p.price} className="card">
-            <img src={p.img} alt={p.name} />
-            <div className="info">
-              <p>{p.name}</p>
-              <div className="price-add">
-                <span>₹ {p.price}</span>
-                <button>+</button>
+      <div className="grid-container">
+        <div className="grid">
+          {pizzas.map((p) => (
+            <div key={p.name + p.price} className="card">
+              <img src={p.img} alt={p.name} />
+              <div className="info">
+                <p>{p.name}</p>
+                <div className="price-add">
+                  <span>₹ {p.price}</span>
+                  <button>+</button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <button className="next-btn">Next</button>

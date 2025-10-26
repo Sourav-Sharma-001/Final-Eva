@@ -1,5 +1,5 @@
 :root {
-  font-size: 62.5%; /* 1rem = 10px */
+  font-size: 62.5%;
 }
 
 body {
@@ -11,9 +11,12 @@ body {
 }
 
 .menu-container {
-  width: 42.8rem; /* iPhone width */
+  width: 42.8rem;
+  height: 100vh;
   padding: 2rem;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 header h2 {
@@ -73,6 +76,12 @@ header p {
   margin-bottom: 1rem;
 }
 
+.grid-container {
+  flex: 1;              /* take remaining height */
+  overflow-y: auto;     /* scrollable */
+  padding-right: 0.5rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -120,13 +129,14 @@ header p {
 }
 
 .next-btn {
-  width: 100%;
+  width: 30%;
   background: #333;
   color: #fff;
   border: none;
   padding: 1.2rem;
-  border-radius: 0.8rem;
+  border-radius: 1.2rem;
   margin-top: 2rem;
   font-size: 1.4rem;
   cursor: pointer;
+  align-self: flex-end;  /* float right alternative in flex container */
 }
