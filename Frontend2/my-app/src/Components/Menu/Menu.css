@@ -44,14 +44,28 @@ header p {
   font-size: 1.4rem;
 }
 
-.categories {
+.categories-container {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   margin-top: 1.5rem;
 }
 
-.categories button {
+.categories-wrapper {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
   flex: 1;
+}
+
+.categories-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.categories-wrapper button {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -59,15 +73,36 @@ header p {
   border: 0.1rem solid #ddd;
   border-radius: 0.8rem;
   padding: 0.8rem;
-  margin: 0 0.3rem;
   font-size: 1.2rem;
   cursor: pointer;
   box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.1);
 }
 
-.categories button.active {
+.categories-wrapper button.active {
   background: #333;
   color: #fff;
+}
+
+.arrow {
+  background: #fff;
+  border: 0.1rem solid #ddd;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  cursor: pointer;
+  width: 2.8rem;
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.1);
+}
+
+.arrow.left {
+  margin-right: 0.5rem;
+}
+
+.arrow.right {
+  margin-left: 0.5rem;
 }
 
 .section-title {
@@ -77,8 +112,8 @@ header p {
 }
 
 .grid-container {
-  flex: 1;              /* take remaining height */
-  overflow-y: auto;     /* scrollable */
+  flex: 1;
+  overflow-y: auto;
   padding-right: 0.5rem;
 }
 
@@ -138,5 +173,5 @@ header p {
   margin-top: 2rem;
   font-size: 1.4rem;
   cursor: pointer;
-  align-self: flex-end;  /* float right alternative in flex container */
+  align-self: flex-end;
 }

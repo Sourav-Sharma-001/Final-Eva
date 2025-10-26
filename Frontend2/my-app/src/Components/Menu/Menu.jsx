@@ -10,6 +10,11 @@ export default function Menu() {
     { name: "Drink", icon: "🥤" },
     { name: "French fries", icon: "🍟" },
     { name: "Veggies", icon: "🥦" },
+    { name: "Sandwich", icon: "🥪" },
+    { name: "Ice Cream", icon: "🍨" },
+    { name: "Sushi", icon: "🍣" },
+    { name: "Cake", icon: "🍰" },
+    { name: "Coffee", icon: "☕" },
   ];
 
   const pizzas = [
@@ -20,6 +25,20 @@ export default function Menu() {
     { name: "Marinara", price: 200, img: "https://picsum.photos/200?5" },
     { name: "Pepperoni", price: 200, img: "https://picsum.photos/200?6" },
   ];
+
+  const scrollLeft = () => {
+    document.querySelector(".categories-wrapper").scrollBy({
+      left: -150,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollRight = () => {
+    document.querySelector(".categories-wrapper").scrollBy({
+      left: 150,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <div className="menu-container">
@@ -32,17 +51,21 @@ export default function Menu() {
         <input type="text" placeholder="Search" />
       </div>
 
-      <div className="categories">
-        {categories.map((c) => (
-          <button
-            key={c.name}
-            className={active === c.name ? "active" : ""}
-            onClick={() => setActive(c.name)}
-          >
-            <span>{c.icon}</span>
-            <p>{c.name}</p>
-          </button>
-        ))}
+      <div className="categories-container">
+        <button className="arrow left" onClick={scrollLeft}>‹</button>
+        <div className="categories-wrapper">
+          {categories.map((c) => (
+            <button
+              key={c.name}
+              className={active === c.name ? "active" : ""}
+              onClick={() => setActive(c.name)}
+            >
+              <span>{c.icon}</span>
+              <p>{c.name}</p>
+            </button>
+          ))}
+        </div>
+        <button className="arrow right" onClick={scrollRight}>›</button>
       </div>
 
       <h3 className="section-title">{active}</h3>
