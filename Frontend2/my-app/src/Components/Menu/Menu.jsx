@@ -25,13 +25,67 @@ export default function Menu() {
     { name: "Coffee", icon: "☕" },
   ];
 
-  const pizzas = [
-    { name: "Capricciosa", price: 200, img: "https://picsum.photos/400/300?1" },
-    { name: "Sicilian", price: 150, img: "https://picsum.photos/400/300?2" },
-    { name: "Marinara", price: 90, img: "https://picsum.photos/400/300?3" },
-    { name: "Pepperoni", price: 300, img: "https://picsum.photos/400/300?4" },
-    { name: "Marinara", price: 200, img: "https://picsum.photos/400/300?5" },
-    { name: "Pepperoni", price: 200, img: "https://picsum.photos/400/300?6" },
+  const foods = [
+    {
+      name: "Capricciosa",
+      price: 200,
+      category: "Pizza",
+      img: "https://picsum.photos/400/300?1",
+    },
+    {
+      name: "Sicilian",
+      price: 150,
+      category: "Pizza",
+      img: "https://picsum.photos/400/300?2",
+    },
+    {
+      name: "Marinara",
+      price: 90,
+      category: "Pizza",
+      img: "https://picsum.photos/400/300?3",
+    },
+    {
+      name: "Cheeseburger",
+      price: 180,
+      category: "Burger",
+      img: "https://picsum.photos/400/300?4",
+    },
+    {
+      name: "Veg Sandwich",
+      price: 120,
+      category: "Sandwich",
+      img: "https://picsum.photos/400/300?5",
+    },
+    {
+      name: "Cold Coffee",
+      price: 80,
+      category: "Coffee",
+      img: "https://picsum.photos/400/300?6",
+    },
+    {
+      name: "Vanilla Ice Cream",
+      price: 90,
+      category: "Ice Cream",
+      img: "https://picsum.photos/400/300?7",
+    },
+    {
+      name: "Coke",
+      price: 50,
+      category: "Drink",
+      img: "https://picsum.photos/400/300?8",
+    },
+    {
+      name: "French Fries",
+      price: 100,
+      category: "French fries",
+      img: "https://picsum.photos/400/300?9",
+    },
+    {
+      name: "Chocolate Cake",
+      price: 150,
+      category: "Cake",
+      img: "https://picsum.photos/400/300?10",
+    },
   ];
 
   const handleChange = (e) => {
@@ -174,20 +228,22 @@ export default function Menu() {
 
         <div className="grid-container">
           <div className="grid">
-            {pizzas.map((p) => (
-              <div key={p.name + p.price} className="card">
-                <img src={p.img} alt={p.name} />
-                <div className="info">
-                  <div className="item-name-price">
-                    <p className="item-name">{p.name}</p>
-                    <span className="price">₹ {p.price}</span>
+            {foods
+              .filter((item) => item.category === active)
+              .map((p) => (
+                <div key={p.name + p.price} className="card">
+                  <img src={p.img} alt={p.name} />
+                  <div className="info">
+                    <div className="item-name-price">
+                      <p className="item-name">{p.name}</p>
+                      <span className="price">₹ {p.price}</span>
+                    </div>
+                    <button className="add-btn" aria-label={`Add ${p.name}`}>
+                      +
+                    </button>
                   </div>
-                  <button className="add-btn" aria-label={`Add ${p.name}`}>
-                    +
-                  </button>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
