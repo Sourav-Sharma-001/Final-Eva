@@ -3,9 +3,12 @@ import "./placeOrder.css";
 
 export default function PlaceOrder() {
   const [quantity, setQuantity] = useState(1);
-  const [orderType, setOrderType] = useState("dinein"); // "dinein" or "takeaway"
+  const [orderType, setOrderType] = useState("dinein");
   const [ordered, setOrdered] = useState(false);
   const [swipeProgress, setSwipeProgress] = useState(0);
+
+  const [showPopup, setShowPopup] = useState(false);
+  const [noteValue, setNoteValue] = useState("");
 
   const trackRef = useRef(null);
   const knobRef = useRef(null);
@@ -71,6 +74,12 @@ export default function PlaceOrder() {
     setOrderType(type);
   };
 
+  const handleNext = () => {
+    const input = document.querySelector(".cooking-note");
+    if (input) input.value = noteValue;
+    setShowPopup(false);
+  };
+
   const itemTotal = 200 * quantity;
   const deliveryCharge = 50;
   const taxes = 5;
@@ -83,6 +92,7 @@ export default function PlaceOrder() {
 
   return (
     <div className="order-wrapper">
+
       <div className="order-page">
         <div className="top-area">
           <h2 className="greeting">Good evening</h2>
@@ -122,6 +132,8 @@ export default function PlaceOrder() {
               type="text"
               className="cooking-note"
               placeholder="Add cooking instructions (optional)"
+              onFocus={() => setShowPopup(true)}
+              readOnly
             />
           </div>
         </div>
@@ -205,6 +217,42 @@ export default function PlaceOrder() {
           </div>
         </div>
       </div>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <div className="popup-close" onClick={() => setShowPopup(false)}>
+              ✕
+            </div>
+
+            <h2 className="popup-title">Add Cooking instructions</h2>
+
+            <textarea
+              className="popup-textarea"
+              value={noteValue}
+              onChange={(e) => setNoteValue(e.target.value)}
+            ></textarea>
+
+            <p className="popup-info">
+              The restaurant will try its best to follow your request. However,
+              refunds or cancellations in this regard won’t be possible
+            </p>
+
+            <div className="popup-buttons">
+              <button className="popup-cancel" onClick={() => {
+                setNoteValue("");
+                setShowPopup(false);
+              }}>
+                Cancel
+              </button>
+              <button className="popup-next" onClick={handleNext}>
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -325,3 +325,103 @@ html, body, #root {
   .swipe-track { height: 4.125rem; /* 66px */ }
   .swipe-knob { width: 3.375rem; /* 54px */ height: 3.375rem; /* 54px */ }
 }
+
+.place-order-container {
+  position: relative;
+}
+
+/* ======================= POPUP OVERLAY (BLUR) ======================= */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(0.75rem);
+  background: rgba(0,0,0,0.15);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 999;
+}
+
+/* ======================= POPUP BOX ======================= */
+.popup-box {
+  width: 95%;
+  max-width: 23.75rem; /* 380px */
+  background: #ffffff;
+  border-radius: 1.2rem 1.2rem 0 0;
+  padding: 1.2rem;
+  box-shadow: 0 -0.125rem 0.625rem rgba(0,0,0,0.15);
+}
+
+/* Close Button */
+.popup-close {
+  width: 2.5rem; /* 40px */
+  height: 2.5rem; /* 40px */
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 1.3rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 1rem auto;
+  cursor: pointer;
+}
+
+/* Title */
+.popup-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Textarea */
+.popup-textarea {
+  width: 90%;
+  height: 5.9rem; /* 95px */
+  border: 0.063rem solid #d3d3d3; /* 1px */
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+  font-size: 0.95rem;
+  resize: none;
+  outline: none;
+}
+
+/* Info text */
+.popup-info {
+  font-size: 0.72rem;
+  color: #6a6a6a;
+  margin: 0.8rem 0 1.2rem 0;
+}
+
+/* Buttons row */
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  cursor: pointer;
+}
+
+/* Cancel Button */
+.popup-cancel {
+  flex: 1;
+  padding: 0.85rem;
+  border-radius: 0.7rem;
+  background: #f3f3f3;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+/* Next Button */
+.popup-next {
+  flex: 1;
+  padding: 0.85rem;
+  border-radius: 0.7rem;
+  background: #2d2d2d;
+  color: #fff;
+  font-size: 1rem;
+  border: none;
+}
