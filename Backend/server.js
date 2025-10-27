@@ -25,8 +25,12 @@ app.get("/", (req, res) => {
   res.send("Server is running...");
 });
 
+
 const foodRoutes = require("./routes/foodRoutes");
 app.use("/api/foods", foodRoutes);
+
+const userDetailsRoutes = require("./routes/userDetailsRoutes");
+app.use("/api/userDetails", userDetailsRoutes);
 
 
 // Start Server

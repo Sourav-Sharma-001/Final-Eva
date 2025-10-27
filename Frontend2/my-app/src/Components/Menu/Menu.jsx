@@ -3,7 +3,14 @@ import "./Menu.css";
 
 export default function Menu() {
   const [active, setActive] = useState("Pizza");
-  const [showModal, setShowModal] = useState(true); // modal visible initially
+  const [showModal, setShowModal] = useState(true);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    party: "",
+    address: "",
+    contact: "",
+  });
 
   const categories = [
     { name: "Burger", icon: "🍔" },
@@ -27,28 +34,35 @@ export default function Menu() {
     { name: "Pepperoni", price: 200, img: "https://picsum.photos/400/300?6" },
   ];
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(false);
+    try {
+      await fetch("http://localhost:5000/api/userDetails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      setShowModal(false);
+    } catch (err) {
+      console.error("Error saving user details:", err);
+    }
   };
 
   const scrollLeft = () => {
     const wrapper = document.querySelector(".categories-wrapper");
     if (wrapper) {
-      wrapper.scrollBy({
-        left: -160,
-        behavior: "smooth",
-      });
+      wrapper.scrollBy({ left: -160, behavior: "smooth" });
     }
   };
 
   const scrollRight = () => {
     const wrapper = document.querySelector(".categories-wrapper");
     if (wrapper) {
-      wrapper.scrollBy({
-        left: 160,
-        behavior: "smooth",
-      });
+      wrapper.scrollBy({ left: 160, behavior: "smooth" });
     }
   };
 
@@ -61,18 +75,53 @@ export default function Menu() {
             <h2>Enter Your Details</h2>
             <form onSubmit={handleSubmit}>
               <label htmlFor="name">Name</label>
-              <input id="name" name="name" type="text" placeholder="full name" required />
+              <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="full name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
 
               <label htmlFor="party">Number of Person</label>
-              <input id="party" name="party" type="number" min="1" placeholder="2, 4, 6" required />
+              <input
+                id="party"
+                name="party"
+                type="number"
+                min="1"
+                placeholder="2, 4, 6"
+                value={formData.party}
+                onChange={handleChange}
+                required
+              />
 
               <label htmlFor="address">Address</label>
-              <input id="address" name="address" type="text" placeholder="address" required />
+              <input
+                id="address"
+                name="address"
+                type="text"
+                placeholder="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
 
               <label htmlFor="contact">Contact</label>
-              <input id="contact" name="contact" type="tel" placeholder="phone" required />
+              <input
+                id="contact"
+                name="contact"
+                type="tel"
+                placeholder="phone"
+                value={formData.contact}
+                onChange={handleChange}
+                required
+              />
 
-              <button type="submit" className="order-btn">Order Now</button>
+              <button type="submit" className="order-btn">
+                Continue
+              </button>
             </form>
           </div>
         </div>
@@ -82,7 +131,7 @@ export default function Menu() {
       <div className={`menu-container ${showModal ? "blurred" : ""}`}>
         <header>
           <h2>Good evening</h2>
-          <p>Place you order here</p>
+          <p>Place your order here</p>
         </header>
 
         <div className="search-bar">
@@ -90,7 +139,9 @@ export default function Menu() {
         </div>
 
         <div className="categories-container">
-          <button className="arrow left" onClick={scrollLeft} aria-label="scroll left">‹</button>
+          <button className="arrow left" onClick={scrollLeft} aria-label="scroll left">
+            ‹
+          </button>
           <div className="categories-wrapper" role="list">
             {categories.map((c) => (
               <button
@@ -99,12 +150,16 @@ export default function Menu() {
                 onClick={() => setActive(c.name)}
                 role="listitem"
               >
-                <span className="cat-icon" aria-hidden="true">{c.icon}</span>
+                <span className="cat-icon" aria-hidden="true">
+                  {c.icon}
+                </span>
                 <p className="cat-name">{c.name}</p>
               </button>
             ))}
           </div>
-          <button className="arrow right" onClick={scrollRight} aria-label="scroll right">›</button>
+          <button className="arrow right" onClick={scrollRight} aria-label="scroll right">
+            ›
+          </button>
         </div>
 
         <h3 className="section-title">{active}</h3>
@@ -118,7 +173,9 @@ export default function Menu() {
                   <p className="item-name">{p.name}</p>
                   <div className="price-add">
                     <span className="price">₹ {p.price}</span>
-                    <button className="add-btn" aria-label={`Add ${p.name}`}>+</button>
+                    <button className="add-btn" aria-label={`Add ${p.name}`}>
+                      +
+                    </button>
                   </div>
                 </div>
               </div>
