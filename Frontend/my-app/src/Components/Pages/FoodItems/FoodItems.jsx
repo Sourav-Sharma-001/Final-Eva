@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./FoodItems.css";
 
 export default function FoodItems() {
   const [foods, setFoods] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
+    image: "",
     name: "",
     description: "",
     price: "",
@@ -13,22 +15,54 @@ export default function FoodItems() {
     inStock: "",
   });
 
+  // 🔹 Fetch data from backend on load
+  useEffect(() => {
+    const fetchFoods = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/foods");
+        setFoods(res.data);
+      } catch (err) {
+        console.error("Error fetching food items:", err);
+      }
+    };
+    fetchFoods();
+  }, []);
+
+  // 🔹 Handle text input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleAddItem = (e) => {
+  // 🔹 Handle image upload (convert to Base64)
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({ ...formData, image: reader.result });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 🔹 Add new item to backend
+  const handleAddItem = async (e) => {
     e.preventDefault();
-    setFoods([...foods, formData]);
-    setFormData({
-      name: "",
-      description: "",
-      price: "",
-      avgPrep: "",
-      category: "",
-      inStock: "",
-    });
-    setShowModal(false);
+    try {
+      const res = await axios.post("http://localhost:5000/api/foods", formData);
+      setFoods([...foods, res.data]); // update frontend list
+      setFormData({
+        image: "",
+        name: "",
+        description: "",
+        price: "",
+        avgPrep: "",
+        category: "",
+        inStock: "",
+      });
+      setShowModal(false);
+    } catch (err) {
+      console.error("Error adding food item:", err);
+    }
   };
 
   return (
@@ -43,7 +77,22 @@ export default function FoodItems() {
       <div className="food-grid">
         {foods.map((food, index) => (
           <div key={index} className="food-card">
-            <div className="food-img">Image</div>
+            <div className="food-img">
+              {food.image ? (
+                <img
+                  src={food.image}
+                  alt={food.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "1rem",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                "No Image"
+              )}
+            </div>
             <div className="food-info">
               <p>
                 <strong>Name:</strong> {food.name}
@@ -52,10 +101,10 @@ export default function FoodItems() {
                 <strong>Description:</strong> {food.description}
               </p>
               <p>
-                <strong>Price:</strong> {food.price}
+                <strong>Price:</strong> ₹{food.price}
               </p>
               <p>
-                <strong>Average Prep Time:</strong> {food.avgPrep}
+                <strong>Average Prep Time:</strong> {food.avgPrep} mins
               </p>
               <p>
                 <strong>Category:</strong> {food.category}
@@ -75,10 +124,13 @@ export default function FoodItems() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Add New Item</h2>
             <form className="modal-form" onSubmit={handleAddItem}>
-              <div className="image-upload">
-                <label>Image</label>
-                <div className="image-dropzone">Drag & Drop or Click</div>
-              </div>
+              <label>Upload Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                required
+              />
 
               <input
                 type="text"
@@ -105,9 +157,9 @@ export default function FoodItems() {
                 required
               />
               <input
-                type="text"
+                type="number"
                 name="avgPrep"
-                placeholder="Average Preparation Time"
+                placeholder="Average Preparation Time (mins)"
                 value={formData.avgPrep}
                 onChange={handleChange}
                 required
