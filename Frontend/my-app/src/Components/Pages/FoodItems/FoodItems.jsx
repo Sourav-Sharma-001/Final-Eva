@@ -55,6 +55,7 @@ export default function FoodItems() {
     <div className="food-page">
       <div className="top-bar">
         <input className="search-box" type="text" placeholder="Search" />
+        <button className="add-btn">Add Items</button>
       </div>
 
       <div className="food-grid">
