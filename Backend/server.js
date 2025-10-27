@@ -25,6 +25,10 @@ app.get("/", (req, res) => {
   res.send("Server is running...");
 });
 
+const foodRoutes = require("./routes/foodRoutes");
+app.use("/api/foods", foodRoutes);
+
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
