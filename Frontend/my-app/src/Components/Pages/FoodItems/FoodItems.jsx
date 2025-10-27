@@ -28,14 +28,13 @@ export default function FoodItems() {
     fetchFoods();
   }, []);
 
-  // 🔹 Handle text input
+  // 🔹 Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Handle image upload (convert to Base64)
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -44,12 +43,26 @@ export default function FoodItems() {
     reader.readAsDataURL(file);
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // 🔹 Add new item to backend
   const handleAddItem = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/foods", formData);
-      setFoods([...foods, res.data]); // update frontend list
+      // allow image to be empty string
+      const payload = { ...formData };
+      const res = await axios.post("http://localhost:5000/api/foods", payload);
+      setFoods([...foods, res.data]);
       setFormData({
         image: "",
         name: "",
@@ -101,10 +114,10 @@ export default function FoodItems() {
                 <strong>Description:</strong> {food.description}
               </p>
               <p>
-                <strong>Price:</strong> ₹{food.price}
+                <strong>Price:</strong> {food.price}
               </p>
               <p>
-                <strong>Average Prep Time:</strong> {food.avgPrep} mins
+                <strong>Average Prep Time:</strong> {food.avgPrep}
               </p>
               <p>
                 <strong>Category:</strong> {food.category}
@@ -124,13 +137,29 @@ export default function FoodItems() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Add New Item</h2>
             <form className="modal-form" onSubmit={handleAddItem}>
-              <label>Upload Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                required
-              />
+              <div className="image-upload">
+                <label>Image</label>
+                <div
+                  className="image-dropzone"
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  <p>Drag & Drop image here</p>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("fileInput").click()}
+                  >
+                    Choose File
+                  </button>
+                  <input
+                    id="fileInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{ display: "none" }}
+                  />
+                </div>
+              </div>
 
               <input
                 type="text"
@@ -157,9 +186,9 @@ export default function FoodItems() {
                 required
               />
               <input
-                type="number"
+                type="text"
                 name="avgPrep"
-                placeholder="Average Preparation Time (mins)"
+                placeholder="Average Preparation Time"
                 value={formData.avgPrep}
                 onChange={handleChange}
                 required
