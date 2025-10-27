@@ -7,9 +7,6 @@
   box-sizing: border-box;
 }
 
-html, body {
-  height: 100%;
-}
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -25,13 +22,14 @@ body {
 /* Mobile container: full width with comfortable padding */
 .menu-container {
   width: 100%;
-  max-width: 42.8rem; /* keeps the same max on large screens */
-  min-height: 100vh;
+  max-width: 42.8rem;
+  height: 95vh; /* CHANGED */
   padding: 1.6rem; /* mobile-friendly padding */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   background: #fff;
+  overflow: hidden; /* ADDED */
 }
 
 /* SOFT BLUR WHEN MODAL OPEN */
@@ -146,7 +144,9 @@ header p {
 /* Grid: mobile single column by default */
 .grid-container {
   flex: 1;
-  overflow-y: auto;
+  height: 100%;
+  overflow-y: auto; /* ENSURES INFINITE SCROLL */
+  -webkit-overflow-scrolling: touch;
   padding-right: 0.2rem;
 }
 
