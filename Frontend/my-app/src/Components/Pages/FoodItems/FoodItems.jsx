@@ -14,6 +14,43 @@ export default function FoodItems() {
       inStock: "Yes",
       rating: "4.5 ⭐",
     },
+    {
+      name: "Burger",
+      description: "Burger from Burger King",
+      price: 199,
+      avgPrep: "20 Mins",
+      category: "Burgers",
+      inStock: "Yes",
+      rating: "4.5 ⭐",
+    },
+    {
+      name: "Burger",
+      description: "Burger from Burger King",
+      price: 199,
+      avgPrep: "20 Mins",
+      category: "Burgers",
+    },
+    {
+      name: "Burger",
+      description: "Burger from Burger King",
+      price: 199,
+      avgPrep: "20 Mins",
+      category: "Burgers",
+    },
+    {
+      name: "Burger",
+      description: "Burger from Burger King",
+      price: 199,
+      avgPrep: "20 Mins",
+      category: "Burgers",
+    },
+    {
+      name: "Burger",
+      description: "Burger from Burger King",
+      price: 199,
+      avgPrep: "20 Mins",
+      category: "Burgers",
+    },
   ];
 
   const handleAddItem = (e) => {
@@ -71,7 +108,7 @@ export default function FoodItems() {
             <h2>Add New Item</h2>
             <form className="modal-form" onSubmit={handleAddItem}>
               <div className="image-upload">
-                <label htmlFor="image">Image</label>
+                <label>Image</label>
                 <div className="image-dropzone">Drag & Drop or Click</div>
               </div>
 
