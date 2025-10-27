@@ -4,6 +4,8 @@ import "./FoodItems.css";
 
 export default function FoodItems() {
   const [foods, setFoods] = useState([]);
+  const [filteredFoods, setFilteredFoods] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     image: "",
@@ -21,12 +23,27 @@ export default function FoodItems() {
       try {
         const res = await axios.get("http://localhost:5000/api/foods");
         setFoods(res.data);
+        setFilteredFoods(res.data);
       } catch (err) {
         console.error("Error fetching food items:", err);
       }
     };
     fetchFoods();
   }, []);
+
+  // 🔹 Handle search
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    const filtered = foods.filter((food) =>
+      Object.entries(food).some(
+        ([key, value]) =>
+          key !== "image" &&
+          String(value).toLowerCase().includes(term)
+      )
+    );
+    setFilteredFoods(filtered);
+  };
 
   // 🔹 Handle input changes
   const handleChange = (e) => {
@@ -59,10 +76,11 @@ export default function FoodItems() {
   const handleAddItem = async (e) => {
     e.preventDefault();
     try {
-      // allow image to be empty string
       const payload = { ...formData };
       const res = await axios.post("http://localhost:5000/api/foods", payload);
-      setFoods([...foods, res.data]);
+      const newFoods = [...foods, res.data];
+      setFoods(newFoods);
+      setFilteredFoods(newFoods);
       setFormData({
         image: "",
         name: "",
@@ -81,14 +99,20 @@ export default function FoodItems() {
   return (
     <div className="food-page">
       <div className="top-bar">
-        <input className="search-box" type="text" placeholder="Search" />
+        <input
+          className="search-box"
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={handleSearch}
+        />
         <button className="add-btn" onClick={() => setShowModal(true)}>
           Add Items
         </button>
       </div>
 
       <div className="food-grid">
-        {foods.map((food, index) => (
+        {filteredFoods.map((food, index) => (
           <div key={index} className="food-card">
             <div className="food-img">
               {food.image ? (
