@@ -2,59 +2,32 @@ import React, { useState } from "react";
 import "./FoodItems.css";
 
 export default function FoodItems() {
+  const [foods, setFoods] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    avgPrep: "",
+    category: "",
+    inStock: "",
+  });
 
-  const foods = [
-    {
-      name: "Burger",
-      description: "Burger from Burger King",
-      price: 199,
-      avgPrep: "20 Mins",
-      category: "Burgers",
-      inStock: "Yes",
-      rating: "4.5 ⭐",
-    },
-    {
-      name: "Burger",
-      description: "Burger from Burger King",
-      price: 199,
-      avgPrep: "20 Mins",
-      category: "Burgers",
-      inStock: "Yes",
-      rating: "4.5 ⭐",
-    },
-    {
-      name: "Burger",
-      description: "Burger from Burger King",
-      price: 199,
-      avgPrep: "20 Mins",
-      category: "Burgers",
-    },
-    {
-      name: "Burger",
-      description: "Burger from Burger King",
-      price: 199,
-      avgPrep: "20 Mins",
-      category: "Burgers",
-    },
-    {
-      name: "Burger",
-      description: "Burger from Burger King",
-      price: 199,
-      avgPrep: "20 Mins",
-      category: "Burgers",
-    },
-    {
-      name: "Burger",
-      description: "Burger from Burger King",
-      price: 199,
-      avgPrep: "20 Mins",
-      category: "Burgers",
-    },
-  ];
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleAddItem = (e) => {
     e.preventDefault();
+    setFoods([...foods, formData]);
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      avgPrep: "",
+      category: "",
+      inStock: "",
+    });
     setShowModal(false);
   };
 
@@ -92,11 +65,6 @@ export default function FoodItems() {
                   <strong>InStock:</strong> {food.inStock}
                 </p>
               )}
-              {food.rating && (
-                <p>
-                  <strong>Rating:</strong> {food.rating}
-                </p>
-              )}
             </div>
           </div>
         ))}
@@ -112,12 +80,54 @@ export default function FoodItems() {
                 <div className="image-dropzone">Drag & Drop or Click</div>
               </div>
 
-              <input type="text" placeholder="Name" required />
-              <input type="text" placeholder="Description" required />
-              <input type="number" placeholder="Price" required />
-              <input type="text" placeholder="Average Preparation Time" required />
-              <input type="text" placeholder="Category" required />
-              <input type="text" placeholder="Stock" required />
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="description"
+                placeholder="Description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={formData.price}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="avgPrep"
+                placeholder="Average Preparation Time"
+                value={formData.avgPrep}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="category"
+                placeholder="Category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="inStock"
+                placeholder="Stock"
+                value={formData.inStock}
+                onChange={handleChange}
+                required
+              />
 
               <button type="submit" className="submit-btn">
                 Add Item
