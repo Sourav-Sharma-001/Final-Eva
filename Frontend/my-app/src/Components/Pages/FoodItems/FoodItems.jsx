@@ -38,8 +38,7 @@ export default function FoodItems() {
     const filtered = foods.filter((food) =>
       Object.entries(food).some(
         ([key, value]) =>
-          key !== "image" &&
-          String(value).toLowerCase().includes(term)
+          key !== "image" && String(value).toLowerCase().includes(term)
       )
     );
     setFilteredFoods(filtered);
@@ -62,11 +61,11 @@ export default function FoodItems() {
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    const file = e.dataTransfer.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
+        setFormData({ ...formData, image: reader.result }); // base64 string
       };
       reader.readAsDataURL(file);
     }
@@ -168,7 +167,7 @@ export default function FoodItems() {
                   onDrop={handleDrop}
                   onDragOver={(e) => e.preventDefault()}
                 >
-                  <p>Drag & Drop image here</p>
+                  Drag & Drop or Click
                   <button
                     type="button"
                     onClick={() => document.getElementById("fileInput").click()}
@@ -179,8 +178,8 @@ export default function FoodItems() {
                     id="fileInput"
                     type="file"
                     accept="image/*"
-                    onChange={handleImageChange}
                     style={{ display: "none" }}
+                    onChange={handleImageChange}
                   />
                 </div>
               </div>

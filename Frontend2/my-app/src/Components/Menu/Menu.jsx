@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./Menu.css";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Menu() {
   const [active, setActive] = useState("Pizza");
   const [showModal, setShowModal] = useState(true);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    party: "",
-    address: "",
-    contact: "",
-  });
+  const [foods, setFoods] = useState([]);
+  const [search, setSearch] = useState("");
 
   const categories = [
     { name: "Burger", icon: "🍔" },
@@ -25,100 +22,45 @@ export default function Menu() {
     { name: "Coffee", icon: "☕" },
   ];
 
-  const foods = [
-    {
-      name: "Capricciosa",
-      price: 200,
-      category: "Pizza",
-      img: "https://picsum.photos/400/300?1",
-    },
-    {
-      name: "Sicilian",
-      price: 150,
-      category: "Pizza",
-      img: "https://picsum.photos/400/300?2",
-    },
-    {
-      name: "Marinara",
-      price: 90,
-      category: "Pizza",
-      img: "https://picsum.photos/400/300?3",
-    },
-    {
-      name: "Cheeseburger",
-      price: 180,
-      category: "Burger",
-      img: "https://picsum.photos/400/300?4",
-    },
-    {
-      name: "Veg Sandwich",
-      price: 120,
-      category: "Sandwich",
-      img: "https://picsum.photos/400/300?5",
-    },
-    {
-      name: "Cold Coffee",
-      price: 80,
-      category: "Coffee",
-      img: "https://picsum.photos/400/300?6",
-    },
-    {
-      name: "Vanilla Ice Cream",
-      price: 90,
-      category: "Ice Cream",
-      img: "https://picsum.photos/400/300?7",
-    },
-    {
-      name: "Coke",
-      price: 50,
-      category: "Drink",
-      img: "https://picsum.photos/400/300?8",
-    },
-    {
-      name: "French Fries",
-      price: 100,
-      category: "French fries",
-      img: "https://picsum.photos/400/300?9",
-    },
-    {
-      name: "Chocolate Cake",
-      price: 150,
-      category: "Cake",
-      img: "https://picsum.photos/400/300?10",
-    },
-  ];
+  // 🔹 Fetch menu items from backend
+  useEffect(() => {
+    const fetchFoods = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/foods`);
+        console.log("Fetched data:", res.data);
+        if (Array.isArray(res.data)) setFoods(res.data);
+        else setFoods([]);
+      } catch (err) {
+        console.error("Error fetching food items:", err);
+        setFoods([]);
+      }
+    };
+    fetchFoods();
+  }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await fetch("http://localhost:5000/api/userDetails", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      setShowModal(false);
-    } catch (err) {
-      console.error("Error saving user details:", err);
-    }
+    setShowModal(false);
   };
 
   const scrollLeft = () => {
     const wrapper = document.querySelector(".categories-wrapper");
-    if (wrapper) {
-      wrapper.scrollBy({ left: -160, behavior: "smooth" });
-    }
+    if (wrapper) wrapper.scrollBy({ left: -160, behavior: "smooth" });
   };
 
   const scrollRight = () => {
     const wrapper = document.querySelector(".categories-wrapper");
-    if (wrapper) {
-      wrapper.scrollBy({ left: 160, behavior: "smooth" });
-    }
+    if (wrapper) wrapper.scrollBy({ left: 160, behavior: "smooth" });
   };
+
+  // 🔹 Filter based on category and search keyword
+  const filteredFoods = foods.filter(
+    (item) =>
+      item.category?.toLowerCase() === active.toLowerCase() &&
+      (item.name?.toLowerCase().includes(search.toLowerCase()) ||
+        item.description?.toLowerCase().includes(search.toLowerCase()) ||
+        item.category?.toLowerCase().includes(search.toLowerCase()))
+  );
 
   return (
     <>
@@ -129,53 +71,18 @@ export default function Menu() {
             <h2>Enter Your Details</h2>
             <form onSubmit={handleSubmit}>
               <label htmlFor="name">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="full name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <input id="name" name="name" type="text" placeholder="full name" required />
 
               <label htmlFor="party">Number of Person</label>
-              <input
-                id="party"
-                name="party"
-                type="number"
-                min="1"
-                placeholder="2, 4, 6"
-                value={formData.party}
-                onChange={handleChange}
-                required
-              />
+              <input id="party" name="party" type="number" min="1" placeholder="2, 4, 6" required />
 
               <label htmlFor="address">Address</label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                placeholder="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
+              <input id="address" name="address" type="text" placeholder="address" required />
 
               <label htmlFor="contact">Contact</label>
-              <input
-                id="contact"
-                name="contact"
-                type="tel"
-                placeholder="phone"
-                value={formData.contact}
-                onChange={handleChange}
-                required
-              />
+              <input id="contact" name="contact" type="tel" placeholder="phone" required />
 
-              <button type="submit" className="order-btn">
-                Continue
-              </button>
+              <button type="submit" className="order-btn">Order Now</button>
             </form>
           </div>
         </div>
@@ -189,17 +96,16 @@ export default function Menu() {
         </header>
 
         <div className="search-bar">
-          <input type="text" placeholder="Search" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         <div className="categories-container">
-          <button
-            className="arrow left"
-            onClick={scrollLeft}
-            aria-label="scroll left"
-          >
-            ‹
-          </button>
+          <button className="arrow left" onClick={scrollLeft} aria-label="scroll left">‹</button>
           <div className="categories-wrapper" role="list">
             {categories.map((c) => (
               <button
@@ -208,42 +114,34 @@ export default function Menu() {
                 onClick={() => setActive(c.name)}
                 role="listitem"
               >
-                <span className="cat-icon" aria-hidden="true">
-                  {c.icon}
-                </span>
+                <span className="cat-icon" aria-hidden="true">{c.icon}</span>
                 <p className="cat-name">{c.name}</p>
               </button>
             ))}
           </div>
-          <button
-            className="arrow right"
-            onClick={scrollRight}
-            aria-label="scroll right"
-          >
-            ›
-          </button>
+          <button className="arrow right" onClick={scrollRight} aria-label="scroll right">›</button>
         </div>
 
         <h3 className="section-title">{active}</h3>
 
         <div className="grid-container">
           <div className="grid">
-            {foods
-              .filter((item) => item.category === active)
-              .map((p) => (
-                <div key={p.name + p.price} className="card">
-                  <img src={p.img} alt={p.name} />
+            {filteredFoods.length > 0 ? (
+              filteredFoods.map((p) => (
+                <div key={p._id} className="card">
+                  <img src={p.image || "https://via.placeholder.com/400x300"} alt={p.name} />
                   <div className="info">
                     <div className="item-name-price">
                       <p className="item-name">{p.name}</p>
                       <span className="price">₹ {p.price}</span>
                     </div>
-                    <button className="add-btn" aria-label={`Add ${p.name}`}>
-                      +
-                    </button>
+                    <button className="add-btn" aria-label={`Add ${p.name}`}>+</button>
                   </div>
                 </div>
-              ))}
+              ))
+            ) : (
+              <p className="no-items">No items found</p>
+            )}
           </div>
         </div>
 
