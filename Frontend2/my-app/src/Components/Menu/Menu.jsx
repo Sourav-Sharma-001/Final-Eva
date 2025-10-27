@@ -139,7 +139,11 @@ export default function Menu() {
         </div>
 
         <div className="categories-container">
-          <button className="arrow left" onClick={scrollLeft} aria-label="scroll left">
+          <button
+            className="arrow left"
+            onClick={scrollLeft}
+            aria-label="scroll left"
+          >
             ‹
           </button>
           <div className="categories-wrapper" role="list">
@@ -157,7 +161,11 @@ export default function Menu() {
               </button>
             ))}
           </div>
-          <button className="arrow right" onClick={scrollRight} aria-label="scroll right">
+          <button
+            className="arrow right"
+            onClick={scrollRight}
+            aria-label="scroll right"
+          >
             ›
           </button>
         </div>
@@ -170,13 +178,13 @@ export default function Menu() {
               <div key={p.name + p.price} className="card">
                 <img src={p.img} alt={p.name} />
                 <div className="info">
-                  <p className="item-name">{p.name}</p>
-                  <div className="price-add">
+                  <div className="item-name-price">
+                    <p className="item-name">{p.name}</p>
                     <span className="price">₹ {p.price}</span>
-                    <button className="add-btn" aria-label={`Add ${p.name}`}>
-                      +
-                    </button>
                   </div>
+                  <button className="add-btn" aria-label={`Add ${p.name}`}>
+                    +
+                  </button>
                 </div>
               </div>
             ))}
