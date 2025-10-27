@@ -14,6 +14,7 @@ export default function PlaceOrder() {
   const startXRef = useRef(0);
   const trackWidthRef = useRef(1);
   const knobWidthRef = useRef(1);
+  const startProgressRef = useRef(0); // ✅ NEW
 
   useEffect(() => {
     // measure sizes after mount
@@ -24,12 +25,10 @@ export default function PlaceOrder() {
       knobWidthRef.current = knob.getBoundingClientRect().width;
     }
 
-    // resize handler in case viewport/resolution changes
     const onResize = () => {
       if (track && knob) {
         trackWidthRef.current = track.getBoundingClientRect().width;
         knobWidthRef.current = knob.getBoundingClientRect().width;
-        // clamp progress if needed
         setSwipeProgress(p => Math.min(1, Math.max(0, p)));
       }
     };
@@ -37,59 +36,48 @@ export default function PlaceOrder() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // pointer event handlers
   const onPointerDown = (e) => {
     if (ordered) return;
     draggingRef.current = true;
-    startXRef.current = e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? 0;
-    // capture pointer to knob to keep receiving move/up
+    startProgressRef.current = swipeProgress; // ✅ keep starting progress
+    const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? 0);
+    startXRef.current = clientX;
     try { e.target.setPointerCapture?.(e.pointerId); } catch {}
   };
 
   const onPointerMove = (e) => {
     if (!draggingRef.current || ordered) return;
-    const clientX = e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? 0;
+    const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? 0);
     const dx = clientX - startXRef.current;
-    const maxTravel = Math.max(1, trackWidthRef.current - knobWidthRef.current - 6); // padding
-    // compute current left from previous progress + dx
-    const prevLeft = swipeProgress * maxTravel;
-    let newLeft = prevLeft + dx;
+    const maxTravel = Math.max(1, trackWidthRef.current - knobWidthRef.current - 6);
+    let newLeft = startProgressRef.current * maxTravel + dx; // ✅ corrected movement
     newLeft = Math.max(0, Math.min(maxTravel, newLeft));
-    const newProgress = newLeft / maxTravel;
-    setSwipeProgress(newProgress);
-    // update startX to current to allow incremental moves
-    startXRef.current = clientX;
+    setSwipeProgress(newLeft / maxTravel);
   };
 
   const onPointerUp = (e) => {
     if (!draggingRef.current || ordered) return;
     draggingRef.current = false;
-    const threshold = 0.72; // must swipe 72% to confirm
+    const threshold = 0.72;
     if (swipeProgress >= threshold) {
-      // confirmed
       setSwipeProgress(1);
-      // emulate success action (no alert). show success state.
       setOrdered(true);
     } else {
-      // snap back
       setSwipeProgress(0);
     }
     try { e.target.releasePointerCapture?.(e.pointerId); } catch {}
   };
 
-  // buttons
   const handleSetOrderType = (type) => {
     if (ordered) return;
     setOrderType(type);
   };
 
-  // compute displayed totals (hardcoded like screenshot)
   const itemTotal = 200 * quantity;
   const deliveryCharge = 50;
   const taxes = 5;
   const grandTotal = itemTotal + deliveryCharge + taxes;
 
-  // visual style: knob translate
   const knobTranslateX = () => {
     const maxTravel = Math.max(1, trackWidthRef.current - knobWidthRef.current - 6);
     return swipeProgress * maxTravel;
@@ -178,7 +166,6 @@ export default function PlaceOrder() {
         </div>
       </div>
 
-      {/* Swipe area (sticky bottom) */}
       <div className="swipe-container">
         <div
           className={`swipe-track ${ordered ? "ordered" : ""}`}
@@ -187,16 +174,13 @@ export default function PlaceOrder() {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           onPointerLeave={onPointerUp}
-          // support touch events too for older browsers (pointer should handle)
         >
-          {/* progress fill */}
           <div
             className="swipe-fill"
             style={{ width: `${Math.round(swipeProgress * 100)}%` }}
             aria-hidden
           />
 
-          {/* knob */}
           <div
             className="swipe-knob"
             ref={knobRef}
@@ -211,7 +195,6 @@ export default function PlaceOrder() {
             {!ordered ? "→" : "✓"}
           </div>
 
-          {/* label */}
           <div className={`swipe-label ${ordered ? "done" : ""}`}>
             {!ordered ? "Swipe to Order" : "Order Placed"}
           </div>

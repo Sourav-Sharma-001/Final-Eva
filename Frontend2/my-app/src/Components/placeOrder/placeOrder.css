@@ -1,5 +1,4 @@
 /* ========== Container ========== */
-/* Full mobile screen - NO overflow, single page */
 :root {
   --bg: #ffffff;
   --muted: #777777;
@@ -12,56 +11,51 @@ html, body, #root {
   margin: 0;
 }
 
-/* Root wrapper sized for iPhone-ish mobile (no scroll) */
 .order-wrapper {
   height: 100vh;
   width: 100%;
-  max-width: 420px;      /* slightly larger to match screenshot width */
+  max-width: 26.25rem; /* 420px */
   margin: 0 auto;
   background: var(--bg);
-  padding: 14px;         /* larger padding for replica feel */
+  padding: 0.875rem; /* 14px */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 8px;
-  /* IMPORTANT: no overflow styles anywhere */
+  gap: 0.5rem; /* 8px */
 }
 
-/* Main content stack */
 .order-page {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem; /* 10px */
   color: #111;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
-/* Top heading */
 .top-area {
-  margin-bottom: 2px;
+  margin-bottom: 0.125rem; /* 2px */
 }
 
 .greeting {
-  font-size: 20px;
+  font-size: 1.25rem; /* 20px */
   font-weight: 600;
   margin: 0;
   color: #111;
 }
 
 .sub-text {
-  margin: 4px 0 0 0;
+  margin: 0.25rem 0 0 0; /* 4px */
   color: var(--muted);
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13px */
 }
 
-/* Search */
 .search-box input {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 0.75rem 0.875rem; /* 12px 14px */
+  border-radius: 0.75rem; /* 12px */
   border: 1px solid #e6e6e6;
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
   outline: none;
   background: #f7f9f8;
 }
@@ -69,15 +63,15 @@ html, body, #root {
 /* ========== Item card ========== */
 .item-card {
   display: flex;
-  gap: 12px;
+  gap: 0.75rem; /* 12px */
   background: transparent;
   align-items: center;
 }
 
 .img-wrap {
-  width: 120px;
-  height: 90px;
-  border-radius: 10px;
+  width: 7.5rem; /* 120px */
+  height: 5.625rem; /* 90px */
+  border-radius: 0.625rem; /* 10px */
   box-shadow: 0 6px 14px rgba(0,0,0,0.15);
   overflow: hidden;
   flex-shrink: 0;
@@ -90,12 +84,11 @@ html, body, #root {
   display: block;
 }
 
-/* Item info */
 .item-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem; /* 6px */
 }
 
 .item-header {
@@ -105,7 +98,7 @@ html, body, #root {
 }
 
 .item-title {
-  font-size: 18px;
+  font-size: 1.125rem; /* 18px */
   margin: 0;
 }
 
@@ -113,8 +106,8 @@ html, body, #root {
   background: #fff;
   border: 1px solid #f0c6c6;
   color: var(--accent);
-  width: 30px;
-  height: 30px;
+  width: 1.875rem; /* 30px */
+  height: 1.875rem; /* 30px */
   border-radius: 50%;
   cursor: pointer;
   font-weight: 700;
@@ -124,9 +117,8 @@ html, body, #root {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* price & qty */
 .price {
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
   color: #333;
   margin: 0;
 }
@@ -134,42 +126,41 @@ html, body, #root {
 .qty-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem; /* 10px */
 }
 
 .qty-selector {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  padding: 6px 8px;
+  gap: 0.625rem; /* 10px */
+  border-radius: 0.5rem; /* 8px */
+  padding: 0.375rem 0.5rem; /* 6px 8px */
   background: #fafafa;
   border: 1px solid #eee;
 }
 
 .qty-btn {
-  min-width: 30px;
-  height: 30px;
-  border-radius: 6px;
+  min-width: 1.875rem; /* 30px */
+  height: 1.875rem; /* 30px */
+  border-radius: 0.375rem; /* 6px */
   border: 1px solid #ddd;
   background: #fff;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem; /* 16px */
 }
 
 .qty-value {
-  min-width: 22px;
+  min-width: 1.375rem; /* 22px */
   text-align: center;
   font-weight: 600;
 }
 
-/* cooking note */
 .cooking-note {
   width: 100%;
   border: none;
   border-bottom: 1px dashed #ddd;
-  padding: 6px 0;
-  font-size: 13px;
+  padding: 0.375rem 0; /* 6px */
+  font-size: 0.8125rem; /* 13px */
   color: var(--muted);
   outline: none;
 }
@@ -178,21 +169,21 @@ html, body, #root {
 .order-type {
   display: flex;
   background: #f0f0f0;
-  border-radius: 28px;
-  padding: 4px;
-  gap: 6px;
+  border-radius: 1.75rem; /* 28px */
+  padding: 0.25rem; /* 4px */
+  gap: 0.375rem; /* 6px */
   align-items: center;
 }
 
 .seg-btn {
   flex: 1;
-  padding: 10px 14px;
-  border-radius: 24px;
+  padding: 0.625rem 0.875rem; /* 10px 14px */
+  border-radius: 1.5rem; /* 24px */
   border: none;
   background: transparent;
   cursor: pointer;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
 }
 
 .seg-btn.active {
@@ -203,35 +194,35 @@ html, body, #root {
 /* ========== Bill box ========== */
 .bill-box {
   background: var(--pale);
-  padding: 12px;
-  border-radius: 10px;
+  padding: 0.75rem; /* 12px */
+  border-radius: 0.625rem; /* 10px */
 }
 
 .bill-row, .total-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  font-size: 14px;
+  margin-bottom: 0.375rem; /* 6px */
+  font-size: 0.875rem; /* 14px */
 }
 
 .total-row {
-  margin-top: 6px;
+  margin-top: 0.375rem; /* 6px */
   font-weight: 700;
-  font-size: 16px;
+  font-size: 1rem; /* 16px */
   border-top: 1px solid rgba(0,0,0,0.03);
-  padding-top: 8px;
+  padding-top: 0.5rem; /* 8px */
 }
 
 /* ========== Details ========== */
 .details-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem; /* 8px */
 }
 
 .details-title {
-  font-size: 15px;
+  font-size: 0.9375rem; /* 15px */
   margin: 0;
   font-weight: 700;
 }
@@ -239,38 +230,37 @@ html, body, #root {
 .user-name {
   margin: 0;
   color: #111;
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
 }
 
 .address-box {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem; /* 8px */
   align-items: center;
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13px */
   color: var(--muted);
 }
 
-.address-pin { margin-right: 4px; }
+.address-pin { margin-right: 0.25rem; /* 4px */ }
 
 .delivery-time {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem; /* 8px */
   align-items: center;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 0.8125rem; /* 13px */
 }
 
-/* ========== Swipe area (bottom) ========== */
+/* ========== Swipe area ========== */
 .swipe-container {
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 0.375rem; /* 6px */
+  padding-bottom: 0.375rem; /* 6px */
 }
 
-/* track */
 .swipe-track {
   position: relative;
-  height: 68px;
-  border-radius: 38px;
+  height: 4.25rem; /* 68px */
+  border-radius: 2.375rem; /* 38px */
   background: #f2f2f2;
   overflow: hidden;
   display: flex;
@@ -278,7 +268,6 @@ html, body, #root {
   justify-content: center;
 }
 
-/* fill behind knob */
 .swipe-fill {
   position: absolute;
   left: 0;
@@ -289,40 +278,37 @@ html, body, #root {
   transition: width 120ms linear;
 }
 
-/* knob */
 .swipe-knob {
   position: absolute;
-  left: 6px;
-  top: 6px;
-  width: 56px;
-  height: 56px;
+  left: 0.375rem; /* 6px */
+  top: 0.375rem; /* 6px */
+  width: 3.5rem; /* 56px */
+  height: 3.5rem; /* 56px */
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 1.375rem; /* 22px */
   cursor: grab;
   user-select: none;
-  touch-action: none; /* allow pointer dragging */
+  touch-action: none;
   transition: background 160ms ease, transform 80ms ease;
   z-index: 2;
 }
 
-/* when ordered: green knob */
 .swipe-track.ordered .swipe-knob {
   background: #4caf50;
   color: #fff;
-  transform: translateX(calc(100% - 62px)); /* ensure knob sits fully right */
+  transform: translateX(calc(100% - 3.875rem)); /* (100% - 62px) */
   cursor: default;
 }
 
-/* label centered */
 .swipe-label {
   position: relative;
   z-index: 1;
-  font-size: 16px;
+  font-size: 1rem; /* 16px */
   font-weight: 600;
   color: #999;
   pointer-events: none;
@@ -332,11 +318,10 @@ html, body, #root {
   color: #2e7d32;
 }
 
-/* small responsive adjustments */
-@media (max-width: 420px) {
-  .order-wrapper { padding: 12px; }
-  .img-wrap { width: 110px; height: 84px; }
-  .greeting { font-size: 19px; }
-  .swipe-track { height: 66px; }
-  .swipe-knob { width: 54px; height: 54px; }
+@media (max-width: 26.25rem) { /* 420px */
+  .order-wrapper { padding: 0.75rem; /* 12px */ }
+  .img-wrap { width: 6.875rem; /* 110px */ height: 5.25rem; /* 84px */ }
+  .greeting { font-size: 1.1875rem; /* 19px */ }
+  .swipe-track { height: 4.125rem; /* 66px */ }
+  .swipe-knob { width: 3.375rem; /* 54px */ height: 3.375rem; /* 54px */ }
 }
