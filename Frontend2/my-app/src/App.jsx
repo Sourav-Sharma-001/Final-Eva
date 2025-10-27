@@ -1,11 +1,11 @@
 import React from 'react'             // <--- add this
 import './App.css'
-import Menu from "./Components/Menu/Menu"  // import default export
+import PlaceOrder from './Components/placeOrder/placeOrder'
 
 function App() {
   return (
     <>
-      <Menu />
+      <PlaceOrder />
     </>
   )
 }
