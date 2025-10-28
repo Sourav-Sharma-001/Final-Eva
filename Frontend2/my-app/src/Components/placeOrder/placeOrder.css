@@ -15,7 +15,7 @@ html, body, #root {
 .order-wrapper {
   height: 100vh;
   width: 100%;
-  max-width: 26.25rem; /* 420px */
+  max-width: 42rem; /* 720px */
   margin: 0 auto;
   background: var(--bg);
   padding: 0.875rem; /* 14px */

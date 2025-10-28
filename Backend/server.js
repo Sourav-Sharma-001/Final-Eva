@@ -21,9 +21,11 @@ mongoose.connect(process.env.MONGO_URI, {
 // Routes
 const foodRoutes = require("./routes/foodRoutes");
 const userDetailsRoutes = require("./routes/userDetailsRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 app.use("/api/foods", foodRoutes);
 app.use("/api/userDetails", userDetailsRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Default route
 app.get("/", (req, res) => {

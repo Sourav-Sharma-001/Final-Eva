@@ -9,6 +9,7 @@ export default function Menu() {
   const [showModal, setShowModal] = useState(true);
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
+  const [party, setParty] = useState("");
 
   const navigate = useNavigate();
 
@@ -93,17 +94,14 @@ export default function Menu() {
                 placeholder="full name"
                 required
               />
-
               <label htmlFor="party">Number of Person</label>
-              <input
-                id="party"
-                name="party"
-                type="number"
-                min="1"
-                placeholder="2, 4, 6"
-                required
-              />
-
+              <select id="party" name="party" required>
+                <option value="">Select</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+              </select>
               <label htmlFor="address">Address</label>
               <input
                 id="address"
@@ -112,7 +110,6 @@ export default function Menu() {
                 placeholder="address"
                 required
               />
-
               <label htmlFor="contact">Contact</label>
               <input
                 id="contact"
@@ -121,7 +118,6 @@ export default function Menu() {
                 placeholder="phone"
                 required
               />
-
               <button type="submit" className="order-btn">
                 Order Now
               </button>
