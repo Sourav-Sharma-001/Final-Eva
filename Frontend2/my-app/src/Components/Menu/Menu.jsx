@@ -27,20 +27,32 @@ export default function Menu() {
     const fetchFoods = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/foods`);
-        console.log("Fetched data:", res.data);
         if (Array.isArray(res.data)) setFoods(res.data);
-        else setFoods([]);
       } catch (err) {
-        console.error("Error fetching food items:", err);
-        setFoods([]);
+        console.error("Error fetching foods:", err);
       }
     };
+
     fetchFoods();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(false);
+
+    const formData = {
+      name: e.target.name.value,
+      party: e.target.party.value,
+      address: e.target.address.value,
+      contact: e.target.contact.value,
+    };
+
+    try {
+      await axios.post(`${API_URL}/api/userDetails`, formData);
+      setShowModal(false);
+    } catch (err) {
+      console.error("Error saving user details:", err);
+      alert("Failed to save details. Try again!");
+    }
   };
 
   const scrollLeft = () => {

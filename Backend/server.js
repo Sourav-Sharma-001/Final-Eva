@@ -4,7 +4,6 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 dotenv.config();
-
 const app = express();
 
 // Middleware
@@ -12,26 +11,24 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("✅ MongoDB connected"))
+.catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// Default route (optional)
+// Routes
+const foodRoutes = require("./routes/foodRoutes");
+const userDetailsRoutes = require("./routes/userDetailsRoutes");
+
+app.use("/api/foods", foodRoutes);
+app.use("/api/userDetails", userDetailsRoutes);
+
+// Default route
 app.get("/", (req, res) => {
   res.send("Server is running...");
 });
-
-
-const foodRoutes = require("./routes/foodRoutes");
-app.use("/api/foods", foodRoutes);
-
-const userDetailsRoutes = require("./routes/userDetailsRoutes");
-app.use("/api/userDetails", userDetailsRoutes);
-
 
 // Start Server
 const PORT = process.env.PORT || 5000;
