@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./PlaceOrder.css";
+import "./placeOrder.css";
 import axios from "axios";
+import { useCart } from "../../ContextAPI/CartContext";
 
 export default function PlaceOrder() {
-  const [quantity, setQuantity] = useState(1);
+  const { cartItems } = useCart();
   const [orderType, setOrderType] = useState("dinein");
   const [ordered, setOrdered] = useState(false);
   const [swipeProgress, setSwipeProgress] = useState(0);
@@ -20,46 +21,35 @@ export default function PlaceOrder() {
 
   const backendURL = import.meta.env.VITE_BACKEND_URL;
 
-  // 💰 totals (moved up)
-  const itemTotal = 200 * quantity;
-  const deliveryCharge = 50;
+  // Dynamic user info (could be fetched later)
+  const user = {
+    name: "Divya Sigatapu",
+    phone: "9109109109",
+    address:
+      "Flat no: 301, SVR Enclave, Hyper Nagar, Vasavi Colony, Hyderabad",
+    deliveryTime: "42 mins",
+  };
+
+  // Safe cart
+  const safeCart = Array.isArray(cartItems) ? cartItems : [];
+
+  // Calculations
+  const itemTotal = safeCart.reduce(
+    (acc, item) => acc + (item.price || 0) * (item.quantity || 0),
+    0
+  );
+  const deliveryCharge = orderType === "takeaway" ? 50 : 0;
   const taxes = 5;
-  const grandTotal =
-    itemTotal + (orderType === "takeaway" ? deliveryCharge : 0) + taxes;
+  const grandTotal = itemTotal + deliveryCharge + taxes;
 
-  useEffect(() => {
-    if (ordered) {
-      const orderData = {
-        items: [
-          {
-            name: "Marinara",
-            price: 200,
-            quantity,
-            category: "Pizza",
-            averagePreparationTime: 3,
-          },
-        ],
-        orderType: orderType === "dinein" ? "dine-in" : "takeaway",
-        tableNumber: orderType === "dinein" ? 5 : null,
-        customerName: "Divya Sigatapu",
-        phoneNumber: "9109109109",
-        address:
-          orderType === "takeaway"
-            ? "Flat no: 301, SVR Enclave, Hyper Nagar"
-            : "",
-        totalAmount: grandTotal,
-      };
-
-      axios
-        .post(`${backendURL}/api/orders`, orderData)
-        .then((res) => console.log("Order saved:", res.data))
-        .catch((err) => console.error("Order save error:", err));
-    }
-  }, [ordered]);
-
+  // Swipe setup
   useEffect(() => {
     const track = trackRef.current;
     const knob = knobRef.current;
+    if (track && knob) {
+      trackWidthRef.current = track.getBoundingClientRect().width;
+      knobWidthRef.current = knob.getBoundingClientRect().width;
+    }
 
     const onResize = () => {
       if (track && knob) {
@@ -68,7 +58,6 @@ export default function PlaceOrder() {
         setSwipeProgress((p) => Math.min(1, Math.max(0, p)));
       }
     };
-
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -77,7 +66,7 @@ export default function PlaceOrder() {
     if (ordered) return;
     draggingRef.current = true;
     startProgressRef.current = swipeProgress;
-    const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? 0);
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
     startXRef.current = clientX;
     try {
       e.target.setPointerCapture?.(e.pointerId);
@@ -86,9 +75,12 @@ export default function PlaceOrder() {
 
   const onPointerMove = (e) => {
     if (!draggingRef.current || ordered) return;
-    const clientX = e.clientX ?? (e.touches?.[0]?.clientX ?? 0);
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
     const dx = clientX - startXRef.current;
-    const maxTravel = Math.max(1, trackWidthRef.current - knobWidthRef.current - 6);
+    const maxTravel = Math.max(
+      1,
+      trackWidthRef.current - knobWidthRef.current - 6
+    );
     let newLeft = startProgressRef.current * maxTravel + dx;
     newLeft = Math.max(0, Math.min(maxTravel, newLeft));
     setSwipeProgress(newLeft / maxTravel);
@@ -101,6 +93,27 @@ export default function PlaceOrder() {
     if (swipeProgress >= threshold) {
       setSwipeProgress(1);
       setOrdered(true);
+
+      // Post order dynamically
+      const orderData = {
+        items: safeCart.map((item) => ({
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: item.category || "General",
+        })),
+        orderType: orderType === "dinein" ? "dine-in" : "takeaway",
+        tableNumber: orderType === "dinein" ? 5 : null,
+        customerName: user.name,
+        phoneNumber: user.phone,
+        address: orderType === "takeaway" ? user.address : "",
+        totalAmount: grandTotal,
+      };
+
+      axios
+        .post(`${backendURL}/api/orders`, orderData)
+        .then((res) => console.log("Order saved:", res.data))
+        .catch((err) => console.error("Order save error:", err));
     } else {
       setSwipeProgress(0);
     }
@@ -109,19 +122,11 @@ export default function PlaceOrder() {
     } catch {}
   };
 
-  const handleSetOrderType = (type) => {
-    if (ordered) return;
-    setOrderType(type);
-  };
-
-  const handleNext = () => {
-    const input = document.querySelector(".cooking-note");
-    if (input) input.value = noteValue;
-    setShowPopup(false);
-  };
-
   const knobTranslateX = () => {
-    const maxTravel = Math.max(1, trackWidthRef.current - knobWidthRef.current - 6);
+    const maxTravel = Math.max(
+      1,
+      trackWidthRef.current - knobWidthRef.current - 6
+    );
     return swipeProgress * maxTravel;
   };
 
@@ -130,75 +135,83 @@ export default function PlaceOrder() {
       <div className="order-page">
         <div className="top-area">
           <h2 className="greeting">Good evening</h2>
-          <p className="sub-text">Place you order here</p>
+          <p className="sub-text">Place your order here</p>
         </div>
 
         <div className="search-box">
           <input type="text" placeholder="Search" aria-label="Search" />
         </div>
 
-        <div className="item-card">
-          <div className="img-wrap">
-            <img
-              src="/mnt/data/Group 625043.png"
-              alt="pizza"
-              className="item-img"
-            />
-          </div>
+        {/* Dynamic item list */}
+        <div
+          className="items-scroll"
+          style={{
+            maxHeight: "24rem",
+            overflowY: "auto",
+            paddingRight: "0.5rem",
+          }}
+        >
+          {safeCart.length === 0 ? (
+            <p className="empty-cart">No items in cart</p>
+          ) : (
+            safeCart.map((item) => (
+              <div key={item._id} className="item-card">
+                <div className="img-wrap">
+                  <img
+                    src={item.image || "https://via.placeholder.com/400x300"}
+                    alt={item.name}
+                    className="item-img"
+                  />
+                </div>
 
-          <div className="item-info">
-            <div className="item-header">
-              <h3 className="item-title">Marinara</h3>
-              <button className="remove-btn" aria-label="Remove item">
-                ✖
-              </button>
-            </div>
+                <div className="item-info">
+                  <div className="item-header">
+                    <h3 className="item-title">{item.name}</h3>
+                    <button className="remove-btn" aria-label="Remove item">
+                      ✖
+                    </button>
+                  </div>
 
-            <p className="price">₹ {itemTotal}</p>
+                  <p className="price">₹ {item.price * item.quantity}</p>
 
-            <div className="qty-row">
-              <div className="qty-selector">
-                <button
-                  onClick={() => setQuantity((q) => (q > 1 ? q - 1 : 1))}
-                  className="qty-btn"
-                >
-                  -
-                </button>
-                <div className="qty-value">{quantity}</div>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="qty-btn"
-                >
-                  +
-                </button>
+                  <div className="qty-row">
+                    <div className="qty-selector">
+                      <button className="qty-btn">-</button>
+                      <div className="qty-value">{item.quantity}</div>
+                      <button className="qty-btn">+</button>
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    className="cooking-note"
+                    placeholder="Add cooking instructions (optional)"
+                    onFocus={() => setShowPopup(true)}
+                    readOnly
+                  />
+                </div>
               </div>
-            </div>
-
-            <input
-              type="text"
-              className="cooking-note"
-              placeholder="Add cooking instructions (optional)"
-              onFocus={() => setShowPopup(true)}
-              readOnly
-            />
-          </div>
+            ))
+          )}
         </div>
 
+        {/* Dine In / Take Away */}
         <div className="order-type">
           <button
             className={`seg-btn ${orderType === "dinein" ? "active" : ""}`}
-            onClick={() => handleSetOrderType("dinein")}
+            onClick={() => setOrderType("dinein")}
           >
             Dine In
           </button>
           <button
             className={`seg-btn ${orderType === "takeaway" ? "active" : ""}`}
-            onClick={() => handleSetOrderType("takeaway")}
+            onClick={() => setOrderType("takeaway")}
           >
             Take Away
           </button>
         </div>
 
+        {/* Bill section */}
         <div className="bill-box">
           <div className="bill-row">
             <span>Item Total</span>
@@ -223,29 +236,30 @@ export default function PlaceOrder() {
           </div>
         </div>
 
+        {/* Address / details block */}
         {orderType === "takeaway" && (
           <div className="details-block">
             <h4 className="details-title">Your details</h4>
-            <p className="user-name">Divya Sigatapu, 9109109109</p>
+            <p className="user-name">
+              {user.name}, {user.phone}
+            </p>
 
             <div className="address-box">
               <span className="address-pin">📍</span>
-              <span className="address-text">
-                Delivery at Home - Flat no: 301, SVR Enclave, Hyper Nagar,
-                vasavi...
-              </span>
+              <span className="address-text">Delivery at Home - {user.address}</span>
             </div>
 
             <div className="delivery-time">
               <span className="time-pin">⏱</span>
               <span>
-                Delivery in <strong>42 mins</strong>
+                Delivery in <strong>{user.deliveryTime}</strong>
               </span>
             </div>
           </div>
         )}
       </div>
 
+      {/* Swipe bar */}
       <div className="swipe-container">
         <div
           className={`swipe-track ${ordered ? "ordered" : ""}`}
@@ -281,6 +295,7 @@ export default function PlaceOrder() {
         </div>
       </div>
 
+      {/* Popup */}
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup-box">
@@ -311,7 +326,10 @@ export default function PlaceOrder() {
               >
                 Cancel
               </button>
-              <button className="popup-next" onClick={handleNext}>
+              <button
+                className="popup-next"
+                onClick={() => setShowPopup(false)}
+              >
                 Next
               </button>
             </div>
