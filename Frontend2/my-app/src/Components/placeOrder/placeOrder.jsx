@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./placeOrder.css";
+import "./PlaceOrder.css";
 
 export default function PlaceOrder() {
   const [quantity, setQuantity] = useState(1);

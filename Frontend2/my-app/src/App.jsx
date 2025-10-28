@@ -1,14 +1,14 @@
-import React from 'react'             // <--- add this
-import './App.css'
-import PlaceOrder from './Components/placeOrder/placeOrder'
-import Menu from './Components/Menu/Menu'
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import PlaceOrder from "./Components/placeOrder/placeOrder";
+import Menu from "./Components/Menu/Menu";
 
-function App() {
+
+export default function App() {
   return (
-    <>
-      <Menu />
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<Menu />} />
+      <Route path="/placeOrder" element={<PlaceOrder />} />
+    </Routes>
+  );
 }
-
-export default App

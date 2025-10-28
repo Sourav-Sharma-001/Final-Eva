@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Menu.css";
 const API_URL = import.meta.env.VITE_API_URL;
+import { useNavigate } from "react-router-dom";
 
 export default function Menu() {
   const [active, setActive] = useState("Pizza");
   const [showModal, setShowModal] = useState(true);
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
+
+  const navigate = useNavigate();
 
   const categories = [
     { name: "Burger", icon: "🍔" },
@@ -83,18 +86,45 @@ export default function Menu() {
             <h2>Enter Your Details</h2>
             <form onSubmit={handleSubmit}>
               <label htmlFor="name">Name</label>
-              <input id="name" name="name" type="text" placeholder="full name" required />
+              <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="full name"
+                required
+              />
 
               <label htmlFor="party">Number of Person</label>
-              <input id="party" name="party" type="number" min="1" placeholder="2, 4, 6" required />
+              <input
+                id="party"
+                name="party"
+                type="number"
+                min="1"
+                placeholder="2, 4, 6"
+                required
+              />
 
               <label htmlFor="address">Address</label>
-              <input id="address" name="address" type="text" placeholder="address" required />
+              <input
+                id="address"
+                name="address"
+                type="text"
+                placeholder="address"
+                required
+              />
 
               <label htmlFor="contact">Contact</label>
-              <input id="contact" name="contact" type="tel" placeholder="phone" required />
+              <input
+                id="contact"
+                name="contact"
+                type="tel"
+                placeholder="phone"
+                required
+              />
 
-              <button type="submit" className="order-btn">Order Now</button>
+              <button type="submit" className="order-btn">
+                Order Now
+              </button>
             </form>
           </div>
         </div>
@@ -117,7 +147,13 @@ export default function Menu() {
         </div>
 
         <div className="categories-container">
-          <button className="arrow left" onClick={scrollLeft} aria-label="scroll left">‹</button>
+          <button
+            className="arrow left"
+            onClick={scrollLeft}
+            aria-label="scroll left"
+          >
+            ‹
+          </button>
           <div className="categories-wrapper" role="list">
             {categories.map((c) => (
               <button
@@ -126,12 +162,20 @@ export default function Menu() {
                 onClick={() => setActive(c.name)}
                 role="listitem"
               >
-                <span className="cat-icon" aria-hidden="true">{c.icon}</span>
+                <span className="cat-icon" aria-hidden="true">
+                  {c.icon}
+                </span>
                 <p className="cat-name">{c.name}</p>
               </button>
             ))}
           </div>
-          <button className="arrow right" onClick={scrollRight} aria-label="scroll right">›</button>
+          <button
+            className="arrow right"
+            onClick={scrollRight}
+            aria-label="scroll right"
+          >
+            ›
+          </button>
         </div>
 
         <h3 className="section-title">{active}</h3>
@@ -141,13 +185,18 @@ export default function Menu() {
             {filteredFoods.length > 0 ? (
               filteredFoods.map((p) => (
                 <div key={p._id} className="card">
-                  <img src={p.image || "https://via.placeholder.com/400x300"} alt={p.name} />
+                  <img
+                    src={p.image || "https://via.placeholder.com/400x300"}
+                    alt={p.name}
+                  />
                   <div className="info">
                     <div className="item-name-price">
                       <p className="item-name">{p.name}</p>
                       <span className="price">₹ {p.price}</span>
                     </div>
-                    <button className="add-btn" aria-label={`Add ${p.name}`}>+</button>
+                    <button className="add-btn" aria-label={`Add ${p.name}`}>
+                      +
+                    </button>
                   </div>
                 </div>
               ))
@@ -157,7 +206,9 @@ export default function Menu() {
           </div>
         </div>
 
-        <button className="next-btn">Next</button>
+        <button className="next-btn" onClick={() => navigate("/placeOrder")}>
+          Next
+        </button>
       </div>
     </>
   );
