@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import "./Menu.css";
 const API_URL = import.meta.env.VITE_API_URL;
 import { useNavigate } from "react-router-dom";
+import { CartContext } from "../../ContextAPI/CartContext";
 
 export default function Menu() {
   const [active, setActive] = useState("Pizza");
@@ -10,6 +11,7 @@ export default function Menu() {
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
   const [party, setParty] = useState("");
+  const { addToCart } = useContext(CartContext);
 
   const navigate = useNavigate();
 
@@ -26,7 +28,6 @@ export default function Menu() {
     { name: "Coffee", icon: "☕" },
   ];
 
-  // 🔹 Fetch menu items from backend
   useEffect(() => {
     const fetchFoods = async () => {
       try {
@@ -36,7 +37,6 @@ export default function Menu() {
         console.error("Error fetching foods:", err);
       }
     };
-
     fetchFoods();
   }, []);
 
@@ -69,7 +69,6 @@ export default function Menu() {
     if (wrapper) wrapper.scrollBy({ left: 160, behavior: "smooth" });
   };
 
-  // 🔹 Filter based on category and search keyword
   const filteredFoods = foods.filter(
     (item) =>
       item.category?.toLowerCase() === active.toLowerCase() &&
@@ -80,20 +79,13 @@ export default function Menu() {
 
   return (
     <>
-      {/* ===== MODAL ===== */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-box">
             <h2>Enter Your Details</h2>
             <form onSubmit={handleSubmit}>
               <label htmlFor="name">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="full name"
-                required
-              />
+              <input id="name" name="name" type="text" placeholder="full name" required />
               <label htmlFor="party">Number of Person</label>
               <select id="party" name="party" required>
                 <option value="">Select</option>
@@ -103,30 +95,15 @@ export default function Menu() {
                 <option value="8">8</option>
               </select>
               <label htmlFor="address">Address</label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                placeholder="address"
-                required
-              />
+              <input id="address" name="address" type="text" placeholder="address" required />
               <label htmlFor="contact">Contact</label>
-              <input
-                id="contact"
-                name="contact"
-                type="tel"
-                placeholder="phone"
-                required
-              />
-              <button type="submit" className="order-btn">
-                Order Now
-              </button>
+              <input id="contact" name="contact" type="tel" placeholder="phone" required />
+              <button type="submit" className="order-btn">Order Now</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* ===== MENU PAGE ===== */}
       <div className={`menu-container ${showModal ? "blurred" : ""}`}>
         <header>
           <h2>Good evening</h2>
@@ -143,11 +120,7 @@ export default function Menu() {
         </div>
 
         <div className="categories-container">
-          <button
-            className="arrow left"
-            onClick={scrollLeft}
-            aria-label="scroll left"
-          >
+          <button className="arrow left" onClick={scrollLeft} aria-label="scroll left">
             ‹
           </button>
           <div className="categories-wrapper" role="list">
@@ -158,18 +131,12 @@ export default function Menu() {
                 onClick={() => setActive(c.name)}
                 role="listitem"
               >
-                <span className="cat-icon" aria-hidden="true">
-                  {c.icon}
-                </span>
+                <span className="cat-icon" aria-hidden="true">{c.icon}</span>
                 <p className="cat-name">{c.name}</p>
               </button>
             ))}
           </div>
-          <button
-            className="arrow right"
-            onClick={scrollRight}
-            aria-label="scroll right"
-          >
+          <button className="arrow right" onClick={scrollRight} aria-label="scroll right">
             ›
           </button>
         </div>
@@ -190,7 +157,11 @@ export default function Menu() {
                       <p className="item-name">{p.name}</p>
                       <span className="price">₹ {p.price}</span>
                     </div>
-                    <button className="add-btn" aria-label={`Add ${p.name}`}>
+                    <button
+                      className="add-btn"
+                      aria-label={`Add ${p.name}`}
+                      onClick={() => addToCart(p)}
+                    >
                       +
                     </button>
                   </div>
