@@ -2,14 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import "./placeOrder.css";
 import axios from "axios";
 import { useCart } from "../../ContextAPI/CartContext";
+import { useNavigate } from "react-router-dom";
 
 export default function PlaceOrder() {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart(); // clearCart may be undefined if not provided — checked later
+  const navigate = useNavigate();
+
   const [orderType, setOrderType] = useState("dinein");
   const [ordered, setOrdered] = useState(false);
   const [swipeProgress, setSwipeProgress] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
   const [noteValue, setNoteValue] = useState("");
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const trackRef = useRef(null);
   const knobRef = useRef(null);
@@ -19,14 +23,17 @@ export default function PlaceOrder() {
   const knobWidthRef = useRef(1);
   const startProgressRef = useRef(0);
 
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
+  // env fallback: use whichever you set, or default to backend on 5000
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_BACKEND_URL ||
+    "http://localhost:5000";
 
-  // Dynamic user info (could be fetched later)
+  // Dynamic user info placeholder (you can replace with real user data later)
   const user = {
     name: "Divya Sigatapu",
     phone: "9109109109",
-    address:
-      "Flat no: 301, SVR Enclave, Hyper Nagar, Vasavi Colony, Hyderabad",
+    address: "Flat no: 301, SVR Enclave, Hyper Nagar, Vasavi Colony, Hyderabad",
     deliveryTime: "42 mins",
   };
 
@@ -86,37 +93,71 @@ export default function PlaceOrder() {
     setSwipeProgress(newLeft / maxTravel);
   };
 
-  const onPointerUp = (e) => {
+  const onPointerUp = async (e) => {
     if (!draggingRef.current || ordered) return;
     draggingRef.current = false;
     const threshold = 0.72;
+
+    // if cart empty — snap back and do nothing
+    if (safeCart.length === 0) {
+      setSwipeProgress(0);
+      return;
+    }
+
     if (swipeProgress >= threshold) {
       setSwipeProgress(1);
       setOrdered(true);
 
-      // Post order dynamically
+      // prepare order data matching your backend schema
       const orderData = {
         items: safeCart.map((item) => ({
+          // send itemId if available to link to Food collection
+          itemId: item._id || item.itemId || undefined,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
           category: item.category || "General",
+          averagePreparationTime: item.averagePreparationTime || 5,
         })),
         orderType: orderType === "dinein" ? "dine-in" : "takeaway",
-        tableNumber: orderType === "dinein" ? 5 : null,
+        tableNumber: orderType === "dinein" ? 5 : null, // change to real table if available
         customerName: user.name,
         phoneNumber: user.phone,
         address: orderType === "takeaway" ? user.address : "",
         totalAmount: grandTotal,
+        status: "processing",
+        orderTime: new Date(),
       };
 
-      axios
-        .post(`${backendURL}/api/orders`, orderData)
-        .then((res) => console.log("Order saved:", res.data))
-        .catch((err) => console.error("Order save error:", err));
+      try {
+        const res = await axios.post(`${API_URL}/api/orders`, orderData);
+        console.log("Order saved:", res.data);
+
+        // show thank you overlay for 2 seconds then clear cart and redirect
+        setShowThankYou(true);
+        setTimeout(() => {
+          setShowThankYou(false);
+
+          // clear cart if function available
+          try {
+            if (typeof clearCart === "function") clearCart();
+          } catch (err) {
+            console.warn("clearCart failed:", err);
+          }
+
+          // redirect to home (you said show thank you then redirect)
+          navigate("/");
+        }, 2000);
+      } catch (err) {
+        console.error("Order save error:", err);
+        // revert swipe if error
+        setSwipeProgress(0);
+        setOrdered(false);
+      }
     } else {
       setSwipeProgress(0);
     }
+
     try {
       e.target.releasePointerCapture?.(e.pointerId);
     } catch {}
@@ -155,7 +196,7 @@ export default function PlaceOrder() {
             <p className="empty-cart">No items in cart</p>
           ) : (
             safeCart.map((item) => (
-              <div key={item._id} className="item-card">
+              <div key={item._id || item.itemId || item.name} className="item-card">
                 <div className="img-wrap">
                   <img
                     src={item.image || "https://via.placeholder.com/400x300"}
@@ -215,24 +256,24 @@ export default function PlaceOrder() {
         <div className="bill-box">
           <div className="bill-row">
             <span>Item Total</span>
-            <span>₹{itemTotal.toFixed(2)}</span>
+            <span>₹{(itemTotal || 0).toFixed(2)}</span>
           </div>
 
           {orderType === "takeaway" && (
             <div className="bill-row">
               <span>Delivery Charge</span>
-              <span>₹{deliveryCharge.toFixed(2)}</span>
+              <span>₹{(deliveryCharge || 0).toFixed(2)}</span>
             </div>
           )}
 
           <div className="bill-row">
             <span>Taxes</span>
-            <span>₹{taxes.toFixed(2)}</span>
+            <span>₹{(taxes || 0).toFixed(2)}</span>
           </div>
 
           <div className="total-row">
             <span>Grand Total</span>
-            <span>₹{grandTotal.toFixed(2)}</span>
+            <span>₹{(grandTotal || 0).toFixed(2)}</span>
           </div>
         </div>
 
@@ -333,6 +374,16 @@ export default function PlaceOrder() {
                 Next
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Thank you overlay shown for 2s when order placed */}
+      {showThankYou && (
+        <div className="thankyou-overlay" aria-live="polite">
+          <div className="thankyou-box">
+            <h2>Thank you!</h2>
+            <p>Your order has been placed.</p>
           </div>
         </div>
       )}
