@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./Thanks.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Thanks() {
   const [count, setCount] = useState(3);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer =
@@ -16,10 +18,9 @@ export default function Thanks() {
 
   useEffect(() => {
     if (count === 0) {
-      // redirect or perform any action
-      console.log("Redirecting...");
+      navigate("/");
     }
-  }, [count]);
+  }, [count, navigate]);
 
   return (
     <div className="thanks-wrapper">
