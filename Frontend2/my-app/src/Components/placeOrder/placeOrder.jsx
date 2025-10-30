@@ -5,7 +5,7 @@ import { useCart } from "../../ContextAPI/CartContext";
 import { useNavigate } from "react-router-dom";
 
 export default function PlaceOrder() {
-  const { cartItems, clearCart } = useCart(); // clearCart may be undefined if not provided — checked later
+  const { cartItems, addToCart, removeFromCart, clearCart } = useCart();
   const navigate = useNavigate();
 
   const [orderType, setOrderType] = useState("dinein");
@@ -13,7 +13,7 @@ export default function PlaceOrder() {
   const [swipeProgress, setSwipeProgress] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
   const [noteValue, setNoteValue] = useState("");
-  const [showThankYou, setShowThankYou] = useState(false);
+  // keep showThankYou variable removed — we redirect to /thanks on success
 
   const trackRef = useRef(null);
   const knobRef = useRef(null);
@@ -23,7 +23,7 @@ export default function PlaceOrder() {
   const knobWidthRef = useRef(1);
   const startProgressRef = useRef(0);
 
-  // env fallback: use whichever you set, or default to backend on 5000
+  // env fallback
   const API_URL =
     import.meta.env.VITE_API_URL ||
     import.meta.env.VITE_BACKEND_URL ||
@@ -40,13 +40,13 @@ export default function PlaceOrder() {
   // Safe cart
   const safeCart = Array.isArray(cartItems) ? cartItems : [];
 
-  // Calculations
+  // Calculations — TAX = 10% of subtotal (dynamic)
   const itemTotal = safeCart.reduce(
     (acc, item) => acc + (item.price || 0) * (item.quantity || 0),
     0
   );
   const deliveryCharge = orderType === "takeaway" ? 50 : 0;
-  const taxes = 5;
+  const taxes = itemTotal * 0.1; // 10%
   const grandTotal = itemTotal + deliveryCharge + taxes;
 
   // Swipe setup
@@ -111,7 +111,6 @@ export default function PlaceOrder() {
       // prepare order data matching your backend schema
       const orderData = {
         items: safeCart.map((item) => ({
-          // send itemId if available to link to Food collection
           itemId: item._id || item.itemId || undefined,
           name: item.name,
           price: item.price,
@@ -120,7 +119,7 @@ export default function PlaceOrder() {
           averagePreparationTime: item.averagePreparationTime || 5,
         })),
         orderType: orderType === "dinein" ? "dine-in" : "takeaway",
-        tableNumber: orderType === "dinein" ? 5 : null, // change to real table if available
+        tableNumber: orderType === "dinein" ? 5 : null,
         customerName: user.name,
         phoneNumber: user.phone,
         address: orderType === "takeaway" ? user.address : "",
@@ -133,21 +132,15 @@ export default function PlaceOrder() {
         const res = await axios.post(`${API_URL}/api/orders`, orderData);
         console.log("Order saved:", res.data);
 
-        // show thank you overlay for 2 seconds then clear cart and redirect
-        setShowThankYou(true);
-        setTimeout(() => {
-          setShowThankYou(false);
+        // clear cart if available, then navigate to /thanks
+        try {
+          if (typeof clearCart === "function") clearCart();
+        } catch (err) {
+          console.warn("clearCart failed:", err);
+        }
 
-          // clear cart if function available
-          try {
-            if (typeof clearCart === "function") clearCart();
-          } catch (err) {
-            console.warn("clearCart failed:", err);
-          }
-
-          // redirect to home (you said show thank you then redirect)
-          navigate("/");
-        }, 2000);
+        // Navigate to Thanks page (your Thanks.jsx handles 3s redirect to /)
+        navigate("/thanks");
       } catch (err) {
         console.error("Order save error:", err);
         // revert swipe if error
@@ -171,6 +164,27 @@ export default function PlaceOrder() {
     return swipeProgress * maxTravel;
   };
 
+  // quantity handlers using context
+  const handleQtyIncrease = (item) => {
+    if (typeof addToCart === "function") {
+      // addToCart in your context increments if exists; pass minimal item
+      addToCart({ ...item, quantity: 1 });
+    } else {
+      console.warn("addToCart not available in CartContext");
+    }
+  };
+
+  const handleQtyDecrease = (item) => {
+    if (typeof removeFromCart === "function") {
+      // removeFromCart expects name (per your context) — support both shapes
+      // prefer passing id or name depending on your implementation
+      if (item._id) removeFromCart(item._id);
+      else removeFromCart(item.name);
+    } else {
+      console.warn("removeFromCart not available in CartContext");
+    }
+  };
+
   return (
     <div className="order-wrapper">
       <div className="order-page">
@@ -183,7 +197,7 @@ export default function PlaceOrder() {
           <input type="text" placeholder="Search" aria-label="Search" />
         </div>
 
-        {/* Dynamic item list */}
+        {/* Dynamic item list — infinite scroll only in this area */}
         <div
           className="items-scroll"
           style={{
@@ -196,7 +210,10 @@ export default function PlaceOrder() {
             <p className="empty-cart">No items in cart</p>
           ) : (
             safeCart.map((item) => (
-              <div key={item._id || item.itemId || item.name} className="item-card">
+              <div
+                key={item._id || item.itemId || item.name}
+                className="item-card"
+              >
                 <div className="img-wrap">
                   <img
                     src={item.image || "https://via.placeholder.com/400x300"}
@@ -208,21 +225,42 @@ export default function PlaceOrder() {
                 <div className="item-info">
                   <div className="item-header">
                     <h3 className="item-title">{item.name}</h3>
-                    <button className="remove-btn" aria-label="Remove item">
+                    <button
+                      className="remove-btn"
+                      aria-label="Remove item"
+                      // do a full remove loop if you want (not implemented here to avoid changing behavior)
+                      onClick={() => {
+                        // try to remove one by one using removeFromCart
+                        handleQtyDecrease(item);
+                      }}
+                    >
                       ✖
                     </button>
                   </div>
 
-                  <p className="price">₹ {item.price * item.quantity}</p>
+                  <p className="price">₹ {((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
 
                   <div className="qty-row">
                     <div className="qty-selector">
-                      <button className="qty-btn">-</button>
+                      <button
+                        className="qty-btn"
+                        onClick={() => handleQtyDecrease(item)}
+                        aria-label={`Decrease ${item.name}`}
+                      >
+                        -
+                      </button>
                       <div className="qty-value">{item.quantity}</div>
-                      <button className="qty-btn">+</button>
+                      <button
+                        className="qty-btn"
+                        onClick={() => handleQtyIncrease(item)}
+                        aria-label={`Increase ${item.name}`}
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
 
+                  {/* Keep cooking instructions exactly as you provided */}
                   <input
                     type="text"
                     className="cooking-note"
@@ -374,16 +412,6 @@ export default function PlaceOrder() {
                 Next
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Thank you overlay shown for 2s when order placed */}
-      {showThankYou && (
-        <div className="thankyou-overlay" aria-live="polite">
-          <div className="thankyou-box">
-            <h2>Thank you!</h2>
-            <p>Your order has been placed.</p>
           </div>
         </div>
       )}
