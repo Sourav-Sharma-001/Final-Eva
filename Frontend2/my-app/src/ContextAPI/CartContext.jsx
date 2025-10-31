@@ -34,14 +34,29 @@ export const CartProvider = ({ children }) => {
   // Clear entire cart
   const clearCart = () => setCartItems([]);
 
+  // User info state (new)
+  const [userInfo, setUserInfo] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    deliveryTime: "10 mins",
+  });
+
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart }}
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        userInfo,
+        setUserInfo,
+      }}
     >
       {children}
     </CartContext.Provider>
   );
 };
 
+// Hook for using the cart context
 export const useCart = () => React.useContext(CartContext);
-

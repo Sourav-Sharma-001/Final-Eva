@@ -4,8 +4,10 @@ import axios from "axios";
 import { useCart } from "../../ContextAPI/CartContext";
 import { useNavigate } from "react-router-dom";
 
+
 export default function PlaceOrder() {
-  const { cartItems, addToCart, removeFromCart, clearCart } = useCart();
+  const { cartItems, addToCart, removeFromCart, clearCart, userInfo } = useCart();
+  const user = userInfo;
   const navigate = useNavigate();
 
   const [orderType, setOrderType] = useState("dinein");
@@ -13,7 +15,6 @@ export default function PlaceOrder() {
   const [swipeProgress, setSwipeProgress] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
   const [noteValue, setNoteValue] = useState("");
-  // keep showThankYou variable removed — we redirect to /thanks on success
 
   const trackRef = useRef(null);
   const knobRef = useRef(null);
@@ -23,19 +24,18 @@ export default function PlaceOrder() {
   const knobWidthRef = useRef(1);
   const startProgressRef = useRef(0);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserInfo((prev) => ({ ...prev, [name]: value }));
+  };
+  
+
   // env fallback
   const API_URL =
     import.meta.env.VITE_API_URL ||
     import.meta.env.VITE_BACKEND_URL ||
     "http://localhost:5000";
 
-  // Dynamic user info placeholder (you can replace with real user data later)
-  const user = {
-    name: "Divya Sigatapu",
-    phone: "9109109109",
-    address: "Flat no: 301, SVR Enclave, Hyper Nagar, Vasavi Colony, Hyderabad",
-    deliveryTime: "42 mins",
-  };
 
   // Safe cart
   const safeCart = Array.isArray(cartItems) ? cartItems : [];
@@ -238,7 +238,9 @@ export default function PlaceOrder() {
                     </button>
                   </div>
 
-                  <p className="price">₹ {((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
+                  <p className="price">
+                    ₹ {((item.price || 0) * (item.quantity || 0)).toFixed(2)}
+                  </p>
 
                   <div className="qty-row">
                     <div className="qty-selector">
@@ -325,7 +327,9 @@ export default function PlaceOrder() {
 
             <div className="address-box">
               <span className="address-pin">📍</span>
-              <span className="address-text">Delivery at Home - {user.address}</span>
+              <span className="address-text">
+                Delivery at Home - {user.address}
+              </span>
             </div>
 
             <div className="delivery-time">
