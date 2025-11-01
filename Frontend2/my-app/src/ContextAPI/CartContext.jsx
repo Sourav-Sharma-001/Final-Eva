@@ -31,6 +31,11 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const deleteFromCart = (itemName) => {
+    setCartItems((prev) => prev.filter((item) => item.name !== itemName));
+  };
+  
+
   // Clear entire cart
   const clearCart = () => setCartItems([]);
 
@@ -51,6 +56,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         userInfo,
         setUserInfo,
+        deleteFromCart
       }}
     >
       {children}

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 
 export default function PlaceOrder() {
-  const { cartItems, addToCart, removeFromCart, clearCart, userInfo } = useCart();
+  const { cartItems, addToCart, removeFromCart, clearCart, userInfo, deleteFromCart } = useCart();
   const user = userInfo;
   const navigate = useNavigate();
 
@@ -242,7 +242,7 @@ export default function PlaceOrder() {
                       // do a full remove loop if you want (not implemented here to avoid changing behavior)
                       onClick={() => {
                         // try to remove one by one using removeFromCart
-                        handleQtyDecrease(item);
+                        deleteFromCart(item.name);
                       }}
                     >
                       ✖
