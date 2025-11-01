@@ -4,6 +4,7 @@ import "./Menu.css";
 const API_URL = import.meta.env.VITE_API_URL;
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../ContextAPI/CartContext";
+import toast from "react-hot-toast";
 
 
 export default function Menu() {
@@ -169,7 +170,10 @@ export default function Menu() {
                     <button
                       className="add-btn"
                       aria-label={`Add ${p.name}`}
-                      onClick={() => addToCart(p)}
+                      onClick={() => {
+                        addToCart(p);
+                        toast.success(`${p.name} added to cart!`);
+                      }}                      
                     >
                       +
                     </button>
