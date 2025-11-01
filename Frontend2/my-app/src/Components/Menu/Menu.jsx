@@ -5,13 +5,14 @@ const API_URL = import.meta.env.VITE_API_URL;
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../ContextAPI/CartContext";
 
+
 export default function Menu() {
   const [active, setActive] = useState("Pizza");
   const [showModal, setShowModal] = useState(true);
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
   const [party, setParty] = useState("");
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, setUserInfo } = useContext(CartContext);
 
   const navigate = useNavigate();
 
@@ -52,6 +53,14 @@ export default function Menu() {
 
     try {
       await axios.post(`${API_URL}/api/userDetails`, formData);
+      setUserInfo({
+        name: formData.name,
+        phone: formData.contact,
+        address: formData.address,
+        party: formData.party,
+        deliveryTime: "10 mins",
+      });      
+      
       setShowModal(false);
     } catch (err) {
       console.error("Error saving user details:", err);
