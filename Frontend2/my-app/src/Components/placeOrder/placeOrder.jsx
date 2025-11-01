@@ -175,15 +175,26 @@ export default function PlaceOrder() {
   };
 
   const handleQtyDecrease = (item) => {
-    if (typeof removeFromCart === "function") {
-      // removeFromCart expects name (per your context) — support both shapes
-      // prefer passing id or name depending on your implementation
-      if (item._id) removeFromCart(item._id);
-      else removeFromCart(item.name);
-    } else {
+    if (typeof removeFromCart !== "function") {
       console.warn("removeFromCart not available in CartContext");
+      return;
     }
+  
+    // Prefer using name (your CartContext removes by name)
+    if (item.name) {
+      removeFromCart(item.name);
+      return;
+    }
+  
+    // fallback to id if name not available
+    if (item._id) {
+      removeFromCart(item._id);
+      return;
+    }
+  
+    console.warn("No identifier to remove item:", item);
   };
+  
 
   return (
     <div className="order-wrapper">
