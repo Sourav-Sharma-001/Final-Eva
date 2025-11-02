@@ -9,35 +9,63 @@ const ItemSchema = new mongoose.Schema({
   averagePreparationTime: { type: Number }, // minutes
 });
 
-const OrderSchema = new mongoose.Schema({
-  orderId: {
-    type: Number,
-    unique: true,
-    default: () => Math.floor(Date.now() / 1000)
-  },  
-  items: { type: [ItemSchema], required: true },
-  orderType: { type: String, enum: ["dine-in", "takeaway"], required: true },
-  tableNumber: { type: Number, required: function () { return this.orderType === "dine-in"; } },
-  customerName: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  address: { type: String, required: function () { return this.orderType === "takeaway"; } },
-  totalAmount: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: ["processing", "ready", "served", "waiting_pickup", "picked_up", "done"],
-    default: "processing"
+const OrderSchema = new mongoose.Schema(
+  {
+    orderId: {
+      type: Number,
+      unique: true,
+      default: () => Math.floor(Date.now() / 1000),
+    },
+    items: { type: [ItemSchema], required: true },
+    orderType: {
+      type: String,
+      enum: ["dine-in", "takeaway"],
+      required: true,
+    },
+    tableNumber: {
+      type: Number,
+      required: function () {
+        return this.orderType === "dine-in";
+      },
+    },
+    customerName: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+    address: {
+      type: String,
+      required: function () {
+        return this.orderType === "takeaway";
+      },
+    },
+    totalAmount: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: [
+        "processing",
+        "ready",
+        "served",
+        "waiting_pickup",
+        "picked_up",
+        "done",
+      ],
+      default: "processing",
+    },
+    orderTime: { type: Date, default: Date.now },
+
+    // ✅ NEW FIELD — for Phase 1 assignment
+    assignedChef: { type: String, default: "Unassigned" },
+
+    // Optional detailed tracking (Phase 2+)
+    assignments: [
+      {
+        chef: { type: String },
+        itemName: String,
+        quantity: Number,
+        startAt: Date,
+        finishAt: Date,
+      },
+    ],
   },
-  orderTime: { type: Date, default: Date.now }, // set in backend when order saved
-  // optional: assignment info for chefs
-  assignments: [
-    {
-      chef: { type: String }, // chef id or name
-      itemName: String,
-      quantity: Number,
-      startAt: Date,
-      finishAt: Date,
-    }
-  ],
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Order", OrderSchema);
