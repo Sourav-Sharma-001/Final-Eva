@@ -16,7 +16,13 @@ export const CartProvider = ({ children }) => {
           i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      // Assign local unique ID (if not from DB)
+      const itemWithId = {
+        ...item,
+        itemId: item._id || Date.now().toString(), // use Mongo ID if available, else local unique id
+        quantity: 1,
+      };
+      return [...prev, itemWithId];
     });
   };
 
@@ -34,12 +40,11 @@ export const CartProvider = ({ children }) => {
   const deleteFromCart = (itemName) => {
     setCartItems((prev) => prev.filter((item) => item.name !== itemName));
   };
-  
 
   // Clear entire cart
   const clearCart = () => setCartItems([]);
 
-  // User info state (new)
+  // User info state
   const [userInfo, setUserInfo] = useState({
     name: "",
     phone: "",
@@ -56,7 +61,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         userInfo,
         setUserInfo,
-        deleteFromCart
+        deleteFromCart,
       }}
     >
       {children}

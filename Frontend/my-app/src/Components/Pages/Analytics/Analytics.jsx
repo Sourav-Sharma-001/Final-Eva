@@ -1,13 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Analytics.css";
 
 export default function Analytics() {
-  const chefs = [
-    { name: "Manesh", orders: 3 },
-    { name: "Pritam", orders: 7 },
-    { name: "Yash", orders: 5 },
-    { name: "Tenzen", orders: 8 },
-  ];
+  const [chefs, setChefs] = useState([
+    { id: 1, name: "Manesh", isBusy: false, orders: 0, availableAt: null },
+    { id: 2, name: "Pritam", isBusy: false, orders: 0, availableAt: null },
+    { id: 3, name: "Yash", isBusy: false, orders: 0, availableAt: null },
+    { id: 4, name: "Tenzen", isBusy: false, orders: 0, availableAt: null },
+  ]);
+
+  // Function to assign chef in round-robin sequence
+const assignChef = (orderTime, cookingTime) => {
+  setChefs((prev) => {
+    // find first available chef in sequence
+    const availableChef = prev.find((c) => !c.isBusy);
+
+    if (availableChef) {
+      // if found, mark him busy
+      return prev.map((chef) =>
+        chef.id === availableChef.id
+          ? {
+              ...chef,
+              isBusy: true,
+              orders: chef.orders + 1,
+              availableAt: orderTime + cookingTime * 60000, // cooking time in ms
+            }
+          : chef
+      );
+    } else {
+      // if all busy, pick one with earliest availability
+      const earliest = [...prev].sort((a, b) => a.availableAt - b.availableAt)[0];
+      return prev.map((chef) =>
+        chef.id === earliest.id
+          ? {
+              ...chef,
+              orders: chef.orders + 1,
+              availableAt: earliest.availableAt + cookingTime * 60000,
+            }
+          : chef
+      );
+    }
+  });
+};
+
 
   const tables = Array.from({ length: 30 }, (_, i) => i + 1);
   const reservedTables = [4, 5, 6, 7, 22, 23, 29, 30];

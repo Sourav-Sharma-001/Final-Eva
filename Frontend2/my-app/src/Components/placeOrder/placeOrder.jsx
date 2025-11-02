@@ -4,9 +4,15 @@ import axios from "axios";
 import { useCart } from "../../ContextAPI/CartContext";
 import { useNavigate } from "react-router-dom";
 
-
 export default function PlaceOrder() {
-  const { cartItems, addToCart, removeFromCart, clearCart, userInfo, deleteFromCart } = useCart();
+  const {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    userInfo,
+    deleteFromCart,
+  } = useCart();
   const user = userInfo;
   const navigate = useNavigate();
 
@@ -28,14 +34,12 @@ export default function PlaceOrder() {
     const { name, value } = e.target;
     setUserInfo((prev) => ({ ...prev, [name]: value }));
   };
-  
 
   // env fallback
   const API_URL =
     import.meta.env.VITE_API_URL ||
     import.meta.env.VITE_BACKEND_URL ||
     "http://localhost:5000";
-
 
   // Safe cart
   const safeCart = Array.isArray(cartItems) ? cartItems : [];
@@ -179,22 +183,21 @@ export default function PlaceOrder() {
       console.warn("removeFromCart not available in CartContext");
       return;
     }
-  
+
     // Prefer using name (your CartContext removes by name)
     if (item.name) {
       removeFromCart(item.name);
       return;
     }
-  
+
     // fallback to id if name not available
     if (item._id) {
       removeFromCart(item._id);
       return;
     }
-  
+
     console.warn("No identifier to remove item:", item);
   };
-  
 
   return (
     <div className="order-wrapper">
@@ -422,7 +425,10 @@ export default function PlaceOrder() {
               </button>
               <button
                 className="popup-next"
-                onClick={() => setShowPopup(false)}
+                onClick={() => {
+                  document.querySelector(".cooking-note").value = noteValue;
+                  setShowPopup(false);
+                }}
               >
                 Next
               </button>

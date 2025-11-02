@@ -10,6 +10,11 @@ const ItemSchema = new mongoose.Schema({
 });
 
 const OrderSchema = new mongoose.Schema({
+  orderId: {
+    type: Number,
+    unique: true,
+    default: () => Math.floor(Date.now() / 1000)
+  },  
   items: { type: [ItemSchema], required: true },
   orderType: { type: String, enum: ["dine-in", "takeaway"], required: true },
   tableNumber: { type: Number, required: function () { return this.orderType === "dine-in"; } },
