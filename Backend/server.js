@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const { initializeChefs } = require("./controllers/chefControllers"); // ✅ Added
+const { initializeChefs } = require("./controllers/chefControllers"); 
+const Chef = require("./models/chefSchema");
 
 dotenv.config();
 const app = express();
@@ -28,11 +29,25 @@ const foodRoutes = require("./routes/foodRoutes");
 const userDetailsRoutes = require("./routes/userDetailsRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const chefRoutes = require("./routes/chefRoutes");
+const completedOrderRoutes = require("./routes/completedOrderRoutes");
 
 app.use("/api/foods", foodRoutes);
 app.use("/api/userDetails", userDetailsRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/chefs", chefRoutes);
+app.use("/api/completed-orders", completedOrderRoutes);
+
+setInterval(async () => {
+  try {
+    const now = new Date();
+    await Chef.updateMany(
+      { availableAt: { $lte: now } },
+      { isBusy: false, currentOrders: 0 }
+    );
+  } catch (err) {
+    console.error("Error auto-freeing chefs:", err);
+  }
+}, 60 * 1000);
 
 // Default route
 app.get("/", (req, res) => {
