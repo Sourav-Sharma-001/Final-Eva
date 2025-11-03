@@ -37,6 +37,7 @@ const OrderSchema = new mongoose.Schema(
       },
     },
     totalAmount: { type: Number, required: true },
+    totalPrepTime: { type: Number, default: 0 },
     status: {
       type: String,
       enum: [

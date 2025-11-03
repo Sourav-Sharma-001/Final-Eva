@@ -171,9 +171,13 @@ export default function Menu() {
                       className="add-btn"
                       aria-label={`Add ${p.name}`}
                       onClick={() => {
-                        addToCart(p);
+                        addToCart({
+                          ...p,
+                          avgPrep: p.avgPrep || 0,
+                        });
                         toast.success(`${p.name} added to cart!`);
-                      }}                      
+                      }}
+                                           
                     >
                       +
                     </button>

@@ -2,22 +2,36 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/order");
 const Chef = require("../models/chefSchema");
+const Food = require("../models/foodItems");
 
 // POST /api/orders - create new order
 router.post("/", async (req, res) => {
   try {
-    const order = new Order(req.body);
+    const orderData = req.body;
 
-    // ✅ Find the next available chef (not busy or earliest availableAt)
+    // ✅ Resolve item prep times from DB
+    const resolvedItems = await Promise.all(
+      orderData.items.map(async (item) => {
+        const food = await Food.findById(item.itemId);
+        return {
+          ...item,
+          avgPrep: food ? food.avgPrep : 5,
+        };
+      })
+    );
+
+    const order = new Order({ ...orderData, items: resolvedItems });
+
+    // ✅ Find the next available chef
     const chef = await Chef.findOne().sort({ availableAt: 1 });
 
     if (chef) {
-      // Estimate cooking time (sum of all item preparation times or default)
-      const totalPrepTime =
-        order.items.reduce(
-          (sum, item) => sum + (item.averagePreparationTime || 5),
-          0
-        ) || 10;
+      // ✅ Calculate total prep time dynamically
+      const totalPrepTime = resolvedItems.reduce(
+        (sum, item) =>
+          sum + (item.avgPrep || 0) * (item.quantity || 1),
+        0
+      );
 
       // Update chef info
       chef.currentOrders += 1;
@@ -27,6 +41,7 @@ router.post("/", async (req, res) => {
 
       // Assign to order
       order.assignedChef = chef.name;
+      order.totalPrepTime = totalPrepTime;
     } else {
       order.assignedChef = "Unassigned";
     }
