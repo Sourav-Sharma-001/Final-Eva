@@ -35,16 +35,33 @@ export default function OrderLine() {
           if (remaining <= 0) {
             clearInterval(timer);
             try {
-              await axios.post(
-                "http://localhost:5000/api/completed-orders",
-                order
+              console.log("Timer finished for order:", order._id);
+
+              // Attempt to update server
+              const res = await axios.put(
+                `http://localhost:5000/api/orders/${order._id}`,
+                { status: "served" }
               );
-              await axios.delete(
-                `http://localhost:5000/api/orders/${order._id}`
+              console.log("PUT /api/orders response:", res.status, res.data);
+
+              // Ensure local UI update
+              setOrders((prev) =>
+                prev.map((o) =>
+                  o._id === order._id ? { ...o, status: "served" } : o
+                )
               );
-              setOrders((prev) => prev.filter((o) => o._id !== order._id));
             } catch (err) {
-              console.error("Error moving order:", err);
+              console.error(
+                "Error marking served (will still update UI):",
+                err
+              );
+
+              // Fallback: still update UI so user sees Served
+              setOrders((prev) =>
+                prev.map((o) =>
+                  o._id === order._id ? { ...o, status: "served" } : o
+                )
+              );
             }
           }
         }, 1000);
@@ -74,10 +91,12 @@ export default function OrderLine() {
       <div className="order-grid">
         {orders.map((order, index) => {
           const color =
-            order.status === "processing"
+            order.status === "served"
+              ? order.orderType === "takeaway"
+                ? "grey"
+                : "green"
+              : order.status === "processing"
               ? "orange"
-              : order.status === "served"
-              ? "green"
               : "grey";
 
           return (
@@ -106,7 +125,10 @@ export default function OrderLine() {
                   <p>{order.orderType}</p>
                   <span>
                     {order.status === "processing"
-                      ? formatTime(new Date(order.orderTime).getTime() + order.totalPrepTime * 60000)
+                      ? formatTime(
+                          new Date(order.orderTime).getTime() +
+                            order.totalPrepTime * 60000
+                        )
                       : order.status}
                   </span>
                 </div>
@@ -134,8 +156,15 @@ export default function OrderLine() {
                   </button>
                 )}
                 {order.status === "served" && (
-                  <button className="order-btn green-btn">Order Done ✅</button>
+                  <button
+                    className={`order-btn ${
+                      order.orderType === "takeaway" ? "grey-btn" : "green-btn"
+                    }`}
+                  >
+                    Order Done ✓
+                  </button>
                 )}
+
                 {order.status === "not picked up" && (
                   <button className="order-btn grey-btn">Order Done ⚙️</button>
                 )}
