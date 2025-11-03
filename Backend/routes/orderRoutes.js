@@ -32,6 +32,7 @@ router.post("/", async (req, res) => {
           sum + (item.avgPrep || 0) * (item.quantity || 1),
         0
       );
+      const availableAt = new Date(Date.now() + totalPrepTime * 60000);
 
       // Update chef info
       chef.currentOrders += 1;
@@ -42,6 +43,7 @@ router.post("/", async (req, res) => {
       // Assign to order
       order.assignedChef = chef.name;
       order.totalPrepTime = totalPrepTime;
+      order.availableAt = availableAt; 
     } else {
       order.assignedChef = "Unassigned";
     }

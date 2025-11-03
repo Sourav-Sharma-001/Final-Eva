@@ -18,37 +18,33 @@ export default function OrderLine() {
     fetchOrders();
 
     // Auto-refresh every 10s
-    const interval = setInterval(fetchOrders, 10000);
+    const interval = setInterval(fetchOrders, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Countdown + auto move to completed
+  // Countdown based on totalPrepTime
   useEffect(() => {
     const timers = orders.map((order) => {
-      if (order.status === "processing" && order.availableAt) {
+      if (order.status === "processing" && order.totalPrepTime) {
+        const endTime =
+          new Date(order.orderTime).getTime() + order.totalPrepTime * 60000;
+
         const timer = setInterval(async () => {
-          const remaining =
-            new Date(order.availableAt).getTime() - new Date().getTime();
+          const remaining = endTime - new Date().getTime();
 
           if (remaining <= 0) {
             clearInterval(timer);
-
             try {
-              // Move to completedOrders collection
               await axios.post(
                 "http://localhost:5000/api/completed-orders",
                 order
               );
-
-              // Delete from main orders
               await axios.delete(
                 `http://localhost:5000/api/orders/${order._id}`
               );
-
-              // Update local state
               setOrders((prev) => prev.filter((o) => o._id !== order._id));
             } catch (err) {
-              console.error("Error auto-moving order:", err);
+              console.error("Error moving order:", err);
             }
           }
         }, 1000);
@@ -66,12 +62,11 @@ export default function OrderLine() {
     if (isNaN(targetTime)) return "00:00"; // invalid date
     const diff = targetTime - new Date().getTime();
     if (diff <= 0) return "00:00";
-  
+
     const m = Math.floor(diff / 60000);
     const s = Math.floor((diff % 60000) / 1000);
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
-  
 
   return (
     <div className="order-line">
@@ -111,7 +106,7 @@ export default function OrderLine() {
                   <p>{order.orderType}</p>
                   <span>
                     {order.status === "processing"
-                      ? formatTime(order.availableAt)
+                      ? formatTime(new Date(order.orderTime).getTime() + order.totalPrepTime * 60000)
                       : order.status}
                   </span>
                 </div>
@@ -134,7 +129,9 @@ export default function OrderLine() {
 
               <div className="order-footer">
                 {order.status === "processing" && (
-                  <button className="order-btn orange-btn">Processing ⏳</button>
+                  <button className="order-btn orange-btn">
+                    Processing ⏳
+                  </button>
                 )}
                 {order.status === "served" && (
                   <button className="order-btn green-btn">Order Done ✅</button>
