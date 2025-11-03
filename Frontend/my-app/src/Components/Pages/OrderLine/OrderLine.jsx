@@ -148,11 +148,32 @@ export default function OrderLine() {
                         ? "grey-btn"
                         : "green-btn"
                     }`}
-                    onClick={() =>
+                    onClick={async () => {
+                      try {
+                        // move to completed (best-effort)
+                        await axios.post(
+                          "http://localhost:5000/api/completed-orders",
+                          order
+                        );
+                      } catch (err) {
+                        console.warn("completed-orders POST failed:", err);
+                      }
+
+                      try {
+                        // delete from active orders
+                        await axios.delete(
+                          `http://localhost:5000/api/orders/${order._id}`
+                        );
+                      } catch (err) {
+                        console.error("Failed to delete order:", err);
+                      }
+
+                      // remove immediately from UI
                       setOrders((prev) =>
                         prev.filter((o) => o._id !== order._id)
-                      )
-                    }
+                      );
+                      console.log(`✅ Order ${order._id} removed`);
+                    }}
                   >
                     Order Done ✓
                   </button>
