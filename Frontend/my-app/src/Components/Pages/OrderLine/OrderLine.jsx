@@ -16,13 +16,10 @@ export default function OrderLine() {
     };
 
     fetchOrders();
-
-    // Auto-refresh every 10s
     const interval = setInterval(fetchOrders, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Countdown based on totalPrepTime
   useEffect(() => {
     const timers = orders.map((order) => {
       if (order.status === "processing" && order.totalPrepTime) {
@@ -31,40 +28,27 @@ export default function OrderLine() {
 
         const timer = setInterval(async () => {
           const remaining = endTime - new Date().getTime();
-
           if (remaining <= 0) {
             clearInterval(timer);
             try {
-              console.log("Timer finished for order:", order._id);
+              const newStatus =
+                order.orderType === "takeaway" ? "not picked up" : "served";
 
-              // Attempt to update server
-              const res = await axios.put(
-                `http://localhost:5000/api/orders/${order._id}`,
-                { status: "served" }
-              );
-              console.log("PUT /api/orders response:", res.status, res.data);
+              await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
+                status: newStatus,
+              });
 
-              // Ensure local UI update
               setOrders((prev) =>
                 prev.map((o) =>
-                  o._id === order._id ? { ...o, status: "served" } : o
+                  o._id === order._id ? { ...o, status: newStatus } : o
                 )
               );
             } catch (err) {
-              console.error(
-                "Error marking served (will still update UI):",
-                err
-              );
-
-              // Fallback: still update UI so user sees Served
-              setOrders((prev) =>
-                prev.map((o) =>
-                  o._id === order._id ? { ...o, status: "served" } : o
-                )
-              );
+              console.error("Error updating order:", err);
             }
           }
         }, 1000);
+
         return timer;
       }
       return null;
@@ -74,9 +58,9 @@ export default function OrderLine() {
   }, [orders]);
 
   const formatTime = (target) => {
-    if (!target) return "00:00"; // missing value
+    if (!target) return "00:00";
     const targetTime = new Date(target).getTime();
-    if (isNaN(targetTime)) return "00:00"; // invalid date
+    if (isNaN(targetTime)) return "00:00";
     const diff = targetTime - new Date().getTime();
     if (diff <= 0) return "00:00";
 
@@ -91,7 +75,7 @@ export default function OrderLine() {
       <div className="order-grid">
         {orders.map((order, index) => {
           const color =
-            order.status === "served"
+            order.status === "served" || order.status === "not picked up"
               ? order.orderType === "takeaway"
                 ? "grey"
                 : "green"
@@ -155,18 +139,23 @@ export default function OrderLine() {
                     Processing ⏳
                   </button>
                 )}
-                {order.status === "served" && (
+
+                {(order.status === "served" ||
+                  order.status === "not picked up") && (
                   <button
                     className={`order-btn ${
-                      order.orderType === "takeaway" ? "grey-btn" : "green-btn"
+                      order.status === "not picked up"
+                        ? "grey-btn"
+                        : "green-btn"
                     }`}
+                    onClick={() =>
+                      setOrders((prev) =>
+                        prev.filter((o) => o._id !== order._id)
+                      )
+                    }
                   >
                     Order Done ✓
                   </button>
-                )}
-
-                {order.status === "not picked up" && (
-                  <button className="order-btn grey-btn">Order Done ⚙️</button>
                 )}
               </div>
             </div>
