@@ -17,10 +17,61 @@ export default function OrderLine() {
 
     fetchOrders();
 
-    // Optional: auto-refresh every 10s
+    // Auto-refresh every 10s
     const interval = setInterval(fetchOrders, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Countdown + auto move to completed
+  useEffect(() => {
+    const timers = orders.map((order) => {
+      if (order.status === "processing" && order.availableAt) {
+        const timer = setInterval(async () => {
+          const remaining =
+            new Date(order.availableAt).getTime() - new Date().getTime();
+
+          if (remaining <= 0) {
+            clearInterval(timer);
+
+            try {
+              // Move to completedOrders collection
+              await axios.post(
+                "http://localhost:5000/api/completed-orders",
+                order
+              );
+
+              // Delete from main orders
+              await axios.delete(
+                `http://localhost:5000/api/orders/${order._id}`
+              );
+
+              // Update local state
+              setOrders((prev) => prev.filter((o) => o._id !== order._id));
+            } catch (err) {
+              console.error("Error auto-moving order:", err);
+            }
+          }
+        }, 1000);
+        return timer;
+      }
+      return null;
+    });
+
+    return () => timers.forEach((t) => t && clearInterval(t));
+  }, [orders]);
+
+  const formatTime = (target) => {
+    if (!target) return "00:00"; // missing value
+    const targetTime = new Date(target).getTime();
+    if (isNaN(targetTime)) return "00:00"; // invalid date
+    const diff = targetTime - new Date().getTime();
+    if (diff <= 0) return "00:00";
+  
+    const m = Math.floor(diff / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+  
 
   return (
     <div className="order-line">
@@ -58,7 +109,11 @@ export default function OrderLine() {
 
                 <div className={`order-type ${color}-tag`}>
                   <p>{order.orderType}</p>
-                  <span>{order.status}</span>
+                  <span>
+                    {order.status === "processing"
+                      ? formatTime(order.availableAt)
+                      : order.status}
+                  </span>
                 </div>
               </div>
 
