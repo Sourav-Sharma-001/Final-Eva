@@ -22,28 +22,32 @@ router.post("/", async (req, res) => {
 
     const order = new Order({ ...orderData, items: resolvedItems });
 
-    // ✅ Find the next available chef
-    const chef = await Chef.findOne().sort({ availableAt: 1 });
+    // ✅ Find next available chef — exclude nulls
+    let chef = await Chef.findOne({}).sort({ availableAt: 1 });
 
     if (chef) {
-      // ✅ Calculate total prep time dynamically
       const totalPrepTime = resolvedItems.reduce(
-        (sum, item) =>
-          sum + (item.avgPrep || 0) * (item.quantity || 1),
+        (sum, item) => sum + (item.avgPrep || 0) * (item.quantity || 1),
         0
       );
-      const availableAt = new Date(Date.now() + totalPrepTime * 60000);
 
-      // Update chef info
-      chef.currentOrders += 1;
-      chef.availableAt = new Date(Date.now() + totalPrepTime * 60 * 1000);
+      // ✅ Fix: ensure time always adds correctly, even for new chefs
+      const now = Date.now();
+      const chefAvailableTime = chef.availableAt ? new Date(chef.availableAt).getTime() : now;
+      const startTime = chefAvailableTime > now ? chefAvailableTime : now;
+      const availableAt = new Date(startTime + totalPrepTime * 60000);
+
+
+      // ✅ Update chef info properly
+      chef.orders = (chef.orders || 0) + 1;
+      chef.availableAt = availableAt;
       chef.isBusy = true;
       await chef.save();
 
-      // Assign to order
+      // ✅ Assign to order
       order.assignedChef = chef.name;
       order.totalPrepTime = totalPrepTime;
-      order.availableAt = availableAt; 
+      order.availableAt = availableAt;
     } else {
       order.assignedChef = "Unassigned";
     }
@@ -55,6 +59,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Failed to place order" });
   }
 });
+
 
 // GET /api/orders - fetch all orders
 router.get("/", async (req, res) => {

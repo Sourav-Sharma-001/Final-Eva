@@ -5,11 +5,11 @@ const initializeChefs = async () => {
   const count = await Chef.countDocuments();
   if (count === 0) {
     await Chef.insertMany([
-      { name: "Manesh", isBusy: false, availableAt: null, orders: 0 },
-      { name: "Pritam", isBusy: false, availableAt: null, orders: 0 },
-      { name: "Yash", isBusy: false, availableAt: null, orders: 0 },
-      { name: "Tenzen", isBusy: false, availableAt: null, orders: 0 },
-    ]);
+      { name: "Manesh", isBusy: false, availableAt: new Date(), orders: 0 },
+      { name: "Pritam", isBusy: false, availableAt: new Date(), orders: 0 },
+      { name: "Yash", isBusy: false, availableAt: new Date(), orders: 0 },
+      { name: "Tenzen", isBusy: false, availableAt: new Date(), orders: 0 },
+    ]);    
     console.log("✅ Default chefs added");
   }
 };

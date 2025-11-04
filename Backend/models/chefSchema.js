@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const chefSchema = new mongoose.Schema({
   name: { type: String, required: true },
   isBusy: { type: Boolean, default: false },
-  availableAt: { type: Date, default: Date.now },
+  availableAt: { type: Date, default: () => new Date() },
   orders: { type: Number, default: 0 },
 });
 
