@@ -5,6 +5,7 @@ const Chef = require("../models/chefSchema");
 const Food = require("../models/foodItems");
 
 // POST /api/orders - create new order
+// ✅ Place new order
 router.post("/", async (req, res) => {
   try {
     const orderData = req.body;
@@ -22,34 +23,39 @@ router.post("/", async (req, res) => {
 
     const order = new Order({ ...orderData, items: resolvedItems });
 
-    // ✅ Find next available chef — exclude nulls
-    let chef = await Chef.findOne({}).sort({ availableAt: 1 });
+    // ✅ Fetch all chefs sorted by availability
+    const chefs = await Chef.find().sort({ availableAt: 1 });
 
-    if (chef) {
-      const totalPrepTime = resolvedItems.reduce(
-        (sum, item) => sum + (item.avgPrep || 0) * (item.quantity || 1),
-        0
-      );
+    // ✅ Calculate total prep time for this order
+    const totalPrepTime = resolvedItems.reduce(
+      (sum, item) => sum + (item.avgPrep || 0) * (item.quantity || 1),
+      0
+    );
 
-      // ✅ Fix: ensure time always adds correctly, even for new chefs
-      const now = Date.now();
-      const chefAvailableTime = chef.availableAt ? new Date(chef.availableAt).getTime() : now;
+    // ✅ Pick the chef who becomes free the earliest
+    const assignedChef = chefs.length > 0 ? chefs[0] : null;
+
+    if (assignedChef) {
+      const now = new Date();
+      const chefAvailableTime = new Date(assignedChef.availableAt || now);
       const startTime = chefAvailableTime > now ? chefAvailableTime : now;
-      const availableAt = new Date(startTime + totalPrepTime * 60000);
+      const availableAt = new Date(startTime.getTime() + totalPrepTime * 60000);
 
+      // ✅ Update chef details
+      assignedChef.orders += 1;
+      assignedChef.availableAt = availableAt;
+      assignedChef.isBusy = true;
+      await assignedChef.save();
 
-      // ✅ Update chef info properly
-      chef.orders = (chef.orders || 0) + 1;
-      chef.availableAt = availableAt;
-      chef.isBusy = true;
-      await chef.save();
-
-      // ✅ Assign to order
-      order.assignedChef = chef.name;
+      // ✅ Save order details
+      order.assignedChef = assignedChef.name;
       order.totalPrepTime = totalPrepTime;
       order.availableAt = availableAt;
     } else {
+      // If somehow no chefs exist
       order.assignedChef = "Unassigned";
+      order.totalPrepTime = totalPrepTime;
+      order.availableAt = new Date(Date.now() + totalPrepTime * 60000);
     }
 
     await order.save();
@@ -59,6 +65,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Failed to place order" });
   }
 });
+
 
 
 // GET /api/orders - fetch all orders
