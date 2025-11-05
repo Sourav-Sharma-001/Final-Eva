@@ -12,7 +12,6 @@ export default function Menu() {
   const [showModal, setShowModal] = useState(true);
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
-  const [party, setParty] = useState("");
   const { addToCart, setUserInfo } = useContext(CartContext);
 
   const navigate = useNavigate();

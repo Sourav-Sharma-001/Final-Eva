@@ -1,4 +1,4 @@
-const Table = require("../models/tableSchema");
+const Table = require("../models/tablesSchema");
 
 // assign first available table
 const assignTable = async (orderId) => {

@@ -1,9 +1,6 @@
 import React, { createContext, useState } from "react";
-
-// Create the context
 export const CartContext = createContext();
 
-// Provider component
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
@@ -47,6 +44,7 @@ export const CartProvider = ({ children }) => {
   // User info state
   const [userInfo, setUserInfo] = useState({
     name: "",
+    party: "",
     phone: "",
     address: "",
     deliveryTime: "10 mins",

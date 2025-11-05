@@ -22,6 +22,7 @@ const OrderSchema = new mongoose.Schema(
       enum: ["dine-in", "takeaway"],
       required: true,
     },
+    party: { type: Number, required: false, default: 2 },
     tableNumber: {
       type: Number,
       required: function () {

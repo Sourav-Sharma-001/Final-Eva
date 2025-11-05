@@ -3,6 +3,7 @@ import "./PlaceOrder.css";
 import axios from "axios";
 import { useCart } from "../../ContextAPI/CartContext";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function PlaceOrder() {
   const {
@@ -123,18 +124,26 @@ export default function PlaceOrder() {
           averagePreparationTime: item.averagePreparationTime || 5,
         })),
         orderType: orderType === "dinein" ? "dine-in" : "takeaway",
-        tableNumber: orderType === "dinein" ? 5 : null,
         customerName: user.name,
         phoneNumber: user.phone,
         address: orderType === "takeaway" ? user.address : "",
         totalAmount: grandTotal,
         status: "processing",
         orderTime: new Date(),
-      };
+        party: user.party, 
+      };      
 
       try {
         const res = await axios.post(`${API_URL}/api/orders`, orderData);
         console.log("Order saved:", res.data);
+
+        // show toast based on backend response
+        if (orderType === "dinein") {
+          const tn = res.data.tableNumber || "assigned";
+          toast.success(`Table ${tn} reserved`);
+        } else {
+          toast.success("Takeaway confirmed");
+        }
 
         // clear cart if available, then navigate to /thanks
         try {
