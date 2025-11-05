@@ -14,17 +14,21 @@ export default function Tables() {
   }
 
   function createTable() {
+    if (tables.length >= 30) return; // prevent creating more than 30 tables
+  
     const nextId =
       (tables.length ? Math.max(...tables.map((t) => t.id)) : 0) + 1;
+  
     const table = {
       id: nextId,
       name: newTable.name || `Table ${nextId}`,
       chairs: newTable.chairs,
     };
+  
     setTables((prev) => [...prev, table]);
     setShowModal(false);
     setNewTable({ name: "", chairs: 3 });
-  }
+  }  
 
   function handleBackdropClick(e) {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
