@@ -2,9 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const { initializeChefs } = require("./controllers/chefControllers"); 
+const { initializeChefs } = require("./controllers/chefControllers");
 const Chef = require("./models/chefSchema");
-
 
 dotenv.config();
 const app = express();
@@ -21,7 +20,7 @@ mongoose
   })
   .then(async () => {
     console.log("✅ MongoDB connected");
-    await initializeChefs(); // ✅ Added — create 4 chefs automatically if not present
+    await initializeChefs(); // ✅ create 4 chefs automatically if not present
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
@@ -31,13 +30,16 @@ const userDetailsRoutes = require("./routes/userDetailsRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const chefRoutes = require("./routes/chefRoutes");
 const completedOrderRoutes = require("./routes/completedOrderRoutes");
+const tableRoutes = require("./routes/tableRoutes");
 
 app.use("/api/foods", foodRoutes);
 app.use("/api/userDetails", userDetailsRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/chefs", chefRoutes);
 app.use("/api/completed-orders", completedOrderRoutes);
+app.use("/api/tables", tableRoutes);
 
+// Auto-free chefs when availableAt expires
 setInterval(async () => {
   try {
     const now = new Date();

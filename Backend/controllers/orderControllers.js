@@ -4,6 +4,17 @@ const Food = require("../models/foodItems");
 const Table = require("../models/tablesSchema");
 const allocateTable = require("../utils/tableAllocator");
 
+// GET /api/orders
+const getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ orderTime: -1 });
+    res.json(orders);
+  } catch (err) {
+    console.error("❌ Error fetching orders:", err);
+    res.status(500).json({ message: "Error fetching orders", error: err.message });
+  }
+};
+
 // ✅ CREATE ORDER
 const createOrder = async (req, res) => {
   try {
@@ -48,10 +59,10 @@ const createOrder = async (req, res) => {
 
     // Assign table if dine-in
     if (orderData.orderType === "dine-in") {
-      const table = await allocateTable();
-      if (!table)
+      const tableNumber = await allocateTable(order._id);
+      if (!tableNumber)
         return res.status(400).json({ message: "No tables available right now" });
-      order.tableNumber = table.tableNumber;
+      order.tableNumber = tableNumber;
     }
 
     order.totalPrepTime = totalPrepTime;
@@ -98,4 +109,4 @@ const completeOrder = async (req, res) => {
   }
 };
 
-module.exports = { createOrder, completeOrder };
+module.exports = { getOrders, createOrder, completeOrder };
