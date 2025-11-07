@@ -109,4 +109,74 @@ const completeOrder = async (req, res) => {
   }
 };
 
-module.exports = { getOrders, createOrder, completeOrder };
+// UPDATE order status (PUT /api/orders/:id)
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!status) return res.status(400).json({ message: "Missing status" });
+
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // If moving to completed, free resources (table/chef) similar to completeOrder
+    if (status === "completed") {
+      if (order.orderType === "dine-in" && order.tableNumber) {
+        await Table.findOneAndUpdate(
+          { tableNumber: order.tableNumber },
+          { isReserved: false, currentOrder: null }
+        );
+      }
+      if (order.assignedChef) {
+        const chef = await Chef.findOne({ name: order.assignedChef });
+        if (chef) {
+          chef.isBusy = false;
+          await chef.save();
+        }
+      }
+    }
+
+    order.status = status;
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    console.error("❌ Error updating order status:", err);
+    res.status(500).json({ message: "Failed to update order status" });
+  }
+};
+
+// DELETE order (DELETE /api/orders/:id)
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // free table if dine-in
+    if (order.orderType === "dine-in" && order.tableNumber) {
+      await Table.findOneAndUpdate(
+        { tableNumber: order.tableNumber },
+        { isReserved: false, currentOrder: null }
+      );
+    }
+
+    // free chef if assigned
+    if (order.assignedChef) {
+      const chef = await Chef.findOne({ name: order.assignedChef });
+      if (chef) {
+        chef.isBusy = false;
+        await chef.save();
+      }
+    }
+
+    await Order.findByIdAndDelete(id);
+    res.json({ message: "Order deleted" });
+  } catch (err) {
+    console.error("❌ Error deleting order:", err);
+    res.status(500).json({ message: "Failed to delete order" });
+  }
+};
+
+
+module.exports = { getOrders, createOrder, completeOrder, updateOrderStatus, deleteOrder };
+
