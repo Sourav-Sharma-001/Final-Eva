@@ -109,41 +109,51 @@ const completeOrder = async (req, res) => {
   }
 };
 
-// UPDATE order status (PUT /api/orders/:id)
 const updateOrderStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ message: "Missing status" });
-
+    const { id } = req.params; // match route param
     const order = await Order.findById(id);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    // If moving to completed, free resources (table/chef) similar to completeOrder
-    if (status === "completed") {
-      if (order.orderType === "dine-in" && order.tableNumber) {
-        await Table.findOneAndUpdate(
-          { tableNumber: order.tableNumber },
-          { isReserved: false, currentOrder: null }
-        );
+    // 🟢 For Takeaway: just mark as completed
+    if (order.orderType === "Takeaway") {
+      order.status = "completed"; // use enum-valid value
+      order.completedAt = new Date();
+      await order.save();
+      return res.json({ message: "Takeaway order marked completed", order });
+    }
+
+    // 🟢 For Dine-In: run normal table + chef logic
+    if (order.orderType === "Dine-In") {
+      if (order.table) {
+        const table = await Table.findById(order.table);
+        if (table) {
+          table.isReserved = false;
+          await table.save();
+        }
       }
-      if (order.assignedChef) {
-        const chef = await Chef.findOne({ name: order.assignedChef });
+      if (order.chef) {
+        const chef = await Chef.findById(order.chef);
         if (chef) {
           chef.isBusy = false;
+          chef.availableAt = new Date();
           await chef.save();
         }
       }
+      order.status = "completed"; // use enum-valid value
+      order.completedAt = new Date();
+      await order.save();
+      return res.json({ message: "Dine-in order completed and resources freed", order });
     }
 
-    order.status = status;
-    await order.save();
-    res.json(order);
-  } catch (err) {
-    console.error("❌ Error updating order status:", err);
-    res.status(500).json({ message: "Failed to update order status" });
+    res.status(400).json({ message: "Invalid order type" });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 // DELETE order (DELETE /api/orders/:id)
 const deleteOrder = async (req, res) => {
