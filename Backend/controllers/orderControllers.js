@@ -100,7 +100,7 @@ const completeOrder = async (req, res) => {
       }
     }
 
-    order.status = "completed";
+    order.status = "served";
     await order.save();
     res.json({ message: "Order completed successfully" });
   } catch (err) {
@@ -122,7 +122,7 @@ const updateOrderStatus = async (req, res) => {
 
     // 🟢 For Takeaway: just mark as completed
     if (order.orderType.toLowerCase() === "takeaway") {
-      order.status = "completed"; // use enum-valid value
+      order.status = "not picked up"; 
       order.completedAt = new Date();
       await order.save();
       return res.json({ message: "Takeaway order marked completed", order });
@@ -145,7 +145,7 @@ const updateOrderStatus = async (req, res) => {
           await chef.save();
         }
       }
-      order.status = "completed"; // use enum-valid value
+      order.status = "served"; 
       order.completedAt = new Date();
       await order.save();
       return res.json({ message: "Dine-in order completed and resources freed", order });

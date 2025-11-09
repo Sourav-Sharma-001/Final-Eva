@@ -34,11 +34,9 @@ export default function OrderLine() {
               const newStatus =
                 order.orderType === "takeaway" ? "not picked up" : "served";
 
-                if (order.orderType === "dine-in") {
-                  await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
-                    status: newStatus,
-                  });
-                }                
+              await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
+                status: newStatus,
+              });
 
               setOrders((prev) =>
                 prev.map((o) =>

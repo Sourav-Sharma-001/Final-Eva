@@ -45,7 +45,7 @@ const OrderSchema = new mongoose.Schema(
         "processing",
         "ready",
         "served",
-        "waiting_pickup",
+        "not picked up",
         "picked_up",
         "done",
         "completed", 
