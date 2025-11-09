@@ -113,10 +113,6 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const order = await Order.findById(id);
-    if (order.orderType.toLowerCase() === "takeaway") {
-      // skip backend logic for takeaway
-      return res.json({ message: "Takeaway order doesn't need status update" });
-    }
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
