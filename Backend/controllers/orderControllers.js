@@ -111,12 +111,17 @@ const completeOrder = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { id } = req.params; // match route param
+    const { id } = req.params;
     const order = await Order.findById(id);
+    if (order.orderType.toLowerCase() === "takeaway") {
+      // skip backend logic for takeaway
+      return res.json({ message: "Takeaway order doesn't need status update" });
+    }
+
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     // 🟢 For Takeaway: just mark as completed
-    if (order.orderType === "Takeaway") {
+    if (order.orderType.toLowerCase() === "takeaway") {
       order.status = "completed"; // use enum-valid value
       order.completedAt = new Date();
       await order.save();
@@ -124,7 +129,7 @@ const updateOrderStatus = async (req, res) => {
     }
 
     // 🟢 For Dine-In: run normal table + chef logic
-    if (order.orderType === "Dine-In") {
+    if (order.orderType.toLowerCase() === "dine-in") {
       if (order.table) {
         const table = await Table.findById(order.table);
         if (table) {
@@ -152,8 +157,6 @@ const updateOrderStatus = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
 
 // DELETE order (DELETE /api/orders/:id)
 const deleteOrder = async (req, res) => {
