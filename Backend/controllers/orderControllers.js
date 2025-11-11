@@ -2,9 +2,8 @@ const Order = require("../models/order");
 const Chef = require("../models/chefSchema");
 const Food = require("../models/foodItems");
 const Table = require("../models/tablesSchema");
-const allocateTable = require("../utils/tableAllocator");
 
-// GET /api/orders
+// GET ALL ORDERS
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().sort({ orderTime: -1 });
@@ -15,7 +14,7 @@ const getOrders = async (req, res) => {
   }
 };
 
-// ✅ CREATE ORDER
+// CREATE ORDER
 const createOrder = async (req, res) => {
   try {
     const orderData = req.body;
@@ -31,18 +30,17 @@ const createOrder = async (req, res) => {
       })
     );
 
-    // Create base order
     const order = new Order({ ...orderData, items: resolvedItems });
 
-    // Fetch chefs sorted by availability
+    // Chef assignment logic (unchanged)
     const chefs = await Chef.find().sort({ availableAt: 1 });
     const totalPrepTime = resolvedItems.reduce(
       (sum, item) => sum + (item.avgPrep || 0) * (item.quantity || 1),
       0
     );
 
-    const assignedChef = chefs.length > 0 ? chefs[0] : null;
     const now = new Date();
+    const assignedChef = chefs.length > 0 ? chefs[0] : null;
     const chefAvailableTime = new Date(assignedChef?.availableAt || now);
     const startTime = chefAvailableTime > now ? chefAvailableTime : now;
     const availableAt = new Date(startTime.getTime() + totalPrepTime * 60000);
@@ -57,14 +55,46 @@ const createOrder = async (req, res) => {
       order.assignedChef = "Unassigned";
     }
 
-    // Assign table if dine-in
+    // ---------- DINE-IN: create table (NEW logic) ----------
     if (orderData.orderType === "dine-in") {
-      const tableNumber = await allocateTable(order._id);
-      if (!tableNumber)
-        return res.status(400).json({ message: "No tables available right now" });
-      order.tableNumber = tableNumber;
+      // Count existing tables (manual + dine-in)
+      const totalTables = await Table.countDocuments();
+
+      if (totalTables >= 30) {
+        return res.status(400).json({ message: "All tables occupied" });
+      }
+
+      // Find lowest unused tableNumber between 1..30
+      const existing = await Table.find({}, "tableNumber").lean();
+      const usedNumbers = new Set(existing.map((t) => t.tableNumber));
+      let nextNumber = null;
+      for (let i = 1; i <= 30; i++) {
+        if (!usedNumbers.has(i)) {
+          nextNumber = i;
+          break;
+        }
+      }
+
+      if (!nextNumber) {
+        // Shouldn't happen because of earlier count check, but safe fallback
+        return res.status(400).json({ message: "All tables occupied" });
+      }
+
+      // Create the dine-in table and reserve it
+      const newTable = new Table({
+        tableNumber: nextNumber,
+        chairs: orderData.party || 2,
+        type: "dine-in",
+        isReserved: true,
+        currentOrder: order._id,
+        reservedUntil: availableAt,
+      });
+
+      await newTable.save();
+      order.tableNumber = newTable.tableNumber;
     }
 
+    // finalize order
     order.totalPrepTime = totalPrepTime;
     order.availableAt = availableAt;
     await order.save();
@@ -72,11 +102,11 @@ const createOrder = async (req, res) => {
     res.status(201).json(order);
   } catch (err) {
     console.error("❌ Error creating order:", err);
-    res.status(500).json({ message: "Failed to create order" });
+    res.status(500).json({ message: "Failed to create order", error: err.message });
   }
 };
 
-// ✅ COMPLETE ORDER
+// COMPLETE ORDER
 const completeOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -87,7 +117,7 @@ const completeOrder = async (req, res) => {
     if (order.orderType === "dine-in" && order.tableNumber) {
       await Table.findOneAndUpdate(
         { tableNumber: order.tableNumber },
-        { isReserved: false, currentOrder: null }
+        { isReserved: false, currentOrder: null, reservedUntil: null }
       );
     }
 
@@ -102,13 +132,15 @@ const completeOrder = async (req, res) => {
 
     order.status = "served";
     await order.save();
-    res.json({ message: "Order completed successfully" });
+
+    res.json({ message: "Order completed and table released", order });
   } catch (err) {
     console.error("❌ Error completing order:", err);
     res.status(500).json({ message: "Failed to complete order" });
   }
 };
 
+// UPDATE ORDER STATUS (TAKEAWAY logic preserved exactly)
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -116,7 +148,7 @@ const updateOrderStatus = async (req, res) => {
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    // 🟢 For Takeaway: just mark as completed
+    // 🟢 For Takeaway: just mark as completed (UNCHANGED)
     if (order.orderType.toLowerCase() === "takeaway") {
       order.status = "not picked up"; 
       order.completedAt = new Date();
@@ -124,27 +156,24 @@ const updateOrderStatus = async (req, res) => {
       return res.json({ message: "Takeaway order marked completed", order });
     }
 
-    // 🟢 For Dine-In: run normal table + chef logic
+    // 🟢 For Dine-In: run normal table + chef logic (unchanged intent)
     if (order.orderType.toLowerCase() === "dine-in") {
-      if (order.table) {
-        const table = await Table.findById(order.table);
-        if (table) {
-          table.isReserved = false;
-          await table.save();
-        }
+      await Table.findOneAndUpdate(
+        { tableNumber: order.tableNumber },
+        { isReserved: false, currentOrder: null, reservedUntil: null }
+      );
+
+      const chef = await Chef.findOne({ name: order.assignedChef });
+      if (chef) {
+        chef.isBusy = false;
+        chef.availableAt = new Date();
+        await chef.save();
       }
-      if (order.chef) {
-        const chef = await Chef.findById(order.chef);
-        if (chef) {
-          chef.isBusy = false;
-          chef.availableAt = new Date();
-          await chef.save();
-        }
-      }
+
       order.status = "served"; 
       order.completedAt = new Date();
       await order.save();
-      return res.json({ message: "Dine-in order completed and resources freed", order });
+      return res.json({ message: "Dine-in order completed and table released", order });
     }
 
     res.status(400).json({ message: "Invalid order type" });
@@ -165,7 +194,7 @@ const deleteOrder = async (req, res) => {
     if (order.orderType === "dine-in" && order.tableNumber) {
       await Table.findOneAndUpdate(
         { tableNumber: order.tableNumber },
-        { isReserved: false, currentOrder: null }
+        { isReserved: false, currentOrder: null, reservedUntil: null }
       );
     }
 
@@ -179,13 +208,11 @@ const deleteOrder = async (req, res) => {
     }
 
     await Order.findByIdAndDelete(id);
-    res.json({ message: "Order deleted" });
+    res.json({ message: "Order deleted successfully" });
   } catch (err) {
     console.error("❌ Error deleting order:", err);
     res.status(500).json({ message: "Failed to delete order" });
   }
 };
 
-
 module.exports = { getOrders, createOrder, completeOrder, updateOrderStatus, deleteOrder };
-
