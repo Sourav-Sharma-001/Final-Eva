@@ -75,4 +75,38 @@ router.patch("/release/:id", async (req, res) => {
   }
 });
 
+// ✅ Create a manual table
+router.post("/", async (req, res) => {
+  try {
+    const { chairs } = req.body;
+
+    // Limit to 30 tables
+    const totalTables = await Table.countDocuments();
+    if (totalTables >= 30)
+      return res.status(400).json({ message: "Table limit (30) reached" });
+
+    // Auto-assign table number
+    const newTableNumber = totalTables + 1;
+
+    // Create manual table
+    const newTable = new Table({
+      tableNumber: newTableNumber,
+      chairs: chairs || 2,
+      isReserved: false,
+      currentOrder: null,
+      reservedUntil: null,
+    });
+
+    await newTable.save();
+    res.status(201).json({ message: "Table created successfully", newTable });
+  } catch (err) {
+    console.error("Error creating table:", err);
+    res
+      .status(500)
+      .json({ message: "Error creating table", error: err.message });
+  }
+});
+
+
+
 module.exports = router;

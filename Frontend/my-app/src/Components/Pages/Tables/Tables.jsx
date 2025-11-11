@@ -1,34 +1,61 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Tables.css";
+import axios from "axios";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { PiChairLight } from "react-icons/pi";
 
 export default function Tables() {
-  const [tables, setTables] = useState([]); // ✅ no default tables
+  const [tables, setTables] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newTable, setNewTable] = useState({ name: "", chairs: 3 });
   const modalRef = useRef(null);
 
-  function removeTable(id) {
-    setTables((prev) => prev.filter((t) => t.id !== id));
-  }
+  // ✅ Fetch all tables
+  useEffect(() => {
+    fetchTables();
+  }, []);
 
-  function createTable() {
-    if (tables.length >= 30) return; // prevent creating more than 30 tables
-  
-    const nextId =
-      (tables.length ? Math.max(...tables.map((t) => t.id)) : 0) + 1;
-  
-    const table = {
-      id: nextId,
-      name: newTable.name || `Table ${nextId}`,
+  const fetchTables = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/tables");
+      setTables(res.data);
+    } catch (err) {
+      console.error("Error fetching tables:", err);
+    }
+  };
+
+  // ✅ Remove manual tables only
+  const removeTable = async (id) => {
+    try {
+      const table = tables.find((t) => t._id === id);
+      if (table?.type === "dine-in") {
+        alert("Cannot delete reserved dine-in table.");
+        return;
+      }
+      await axios.delete(`http://localhost:5000/api/tables/${id}`);
+      fetchTables();
+    } catch (err) {
+      console.error("Error deleting table:", err);
+    }
+  };
+
+  // ✅ Create new manual table (API-connected)
+const createTable = async () => {
+  if (tables.length >= 30) return alert("Maximum table limit reached (30)");
+
+  try {
+    await axios.post("http://localhost:5000/api/tables", {
+      name: newTable.name,
       chairs: newTable.chairs,
-    };
-  
-    setTables((prev) => [...prev, table]);
+    });
+    fetchTables();
     setShowModal(false);
     setNewTable({ name: "", chairs: 3 });
-  }  
+  } catch (err) {
+    console.error("Error creating table:", err);
+  }
+};
+
 
   function handleBackdropClick(e) {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
@@ -45,20 +72,28 @@ export default function Tables() {
       <main className="tables-main">
         <ul className="tables-grid">
           {tables.map((t) => (
-            <li key={t.id} className="table-card">
-              <button
-                className="delete-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeTable(t.id);
-                }}
-              >
-                <RiDeleteBin6Line />
-              </button>
+            <li
+              key={t._id}
+              className={`table-card ${t.isReserved ? "reserved" : ""}`}
+            >
+              {/* Delete only manual tables */}
+              {!t.isReserved && (
+                <button
+                  className="delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeTable(t._id);
+                  }}
+                >
+                  <RiDeleteBin6Line />
+                </button>
+              )}
 
               <div className="table-content">
-                <div className="table-label">{t.name}</div>
-                <div className="table-number">{String(t.id).padStart(2, "0")}</div>
+                <div className="table-label">{t.type === "manual" ? t.name || "Table" : "Reserved"}</div>
+                <div className="table-number">
+                  {String(t.tableNumber).padStart(2, "0")}
+                </div>
               </div>
 
               <div className="table-footer">
@@ -157,7 +192,7 @@ export default function Tables() {
                 cursor: "pointer",
                 marginTop: "0.5rem",
               }}
-              onClick={createTable}
+              onClick={createTable} 
             >
               Create
             </button>
