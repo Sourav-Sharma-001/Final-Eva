@@ -52,6 +52,22 @@ setInterval(async () => {
   }
 }, 60 * 1000);
 
+// Auto-delete expired dine-in tables
+const Table = require("./models/tablesSchema");
+
+setInterval(async () => {
+  try {
+    const now = new Date();
+    await Table.deleteMany({
+      type: "dine-in",
+      reservedUntil: { $lte: now },
+    });
+  } catch (err) {
+    console.error("Error auto-deleting expired dine-in tables:", err);
+  }
+}, 60 * 1000);
+
+
 // Default route
 app.get("/", (req, res) => {
   res.send("Server is running...");
