@@ -32,7 +32,7 @@ export default function Tables() {
         alert("Cannot delete reserved dine-in table.");
         return;
       }
-      await axios.delete(`http://localhost:5000/api/tables/${id}`);
+      await axios.delete(`http://localhost:5000/api/tables/manual/${id}`);
       fetchTables();
     } catch (err) {
       console.error("Error deleting table:", err);
