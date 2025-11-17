@@ -113,12 +113,9 @@ const completeOrder = async (req, res) => {
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    // Free table if dine-in
+    // DELETE the table instead of resetting it
     if (order.orderType === "dine-in" && order.tableNumber) {
-      await Table.findOneAndUpdate(
-        { tableNumber: order.tableNumber },
-        { isReserved: false, currentOrder: null, reservedUntil: null }
-      );
+      await Table.findOneAndDelete({ tableNumber: order.tableNumber });
     }
 
     // Free chef
@@ -150,7 +147,7 @@ const updateOrderStatus = async (req, res) => {
 
     // 🟢 For Takeaway: just mark as completed (UNCHANGED)
     if (order.orderType.toLowerCase() === "takeaway") {
-      order.status = "not picked up"; 
+      order.status = "not picked up";
       order.completedAt = new Date();
       await order.save();
       return res.json({ message: "Takeaway order marked completed", order });
@@ -170,7 +167,7 @@ const updateOrderStatus = async (req, res) => {
         await chef.save();
       }
 
-      order.status = "served"; 
+      order.status = "served";
       order.completedAt = new Date();
       await order.save();
       return res.json({ message: "Dine-in order completed and table released", order });
@@ -191,12 +188,7 @@ const deleteOrder = async (req, res) => {
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     // free table if dine-in
-    if (order.orderType === "dine-in" && order.tableNumber) {
-      await Table.findOneAndUpdate(
-        { tableNumber: order.tableNumber },
-        { isReserved: false, currentOrder: null, reservedUntil: null }
-      );
-    }
+    await Table.findOneAndDelete({ tableNumber: order.tableNumber });
 
     // free chef if assigned
     if (order.assignedChef) {
