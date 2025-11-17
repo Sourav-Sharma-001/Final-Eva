@@ -33,11 +33,38 @@ export default function OrderLine() {
             try {
               const newStatus =
                 order.orderType === "takeaway" ? "not picked up" : "served";
-
+          
+              // 1) update order status on server
               await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
                 status: newStatus,
               });
-
+          
+              // 2) if dine-in, delete the dine-in table from DB immediately
+              if (order.orderType === "dine-in") {
+                try {
+                  // fetch tables and find the dine-in table with this tableNumber
+                  const tablesRes = await axios.get("http://localhost:5000/api/tables");
+                  const table = tablesRes.data.find(
+                    (t) => t.tableNumber === order.tableNumber && t.type === "dine-in"
+                  );
+          
+                  if (table && table._id) {
+                    // call backend delete for dine-in table by its _id
+                    await axios.delete(
+                      `http://localhost:5000/api/tables/dinein/${table._id}`
+                    );
+                  } else {
+                    console.warn(
+                      "No matching dine-in table found to delete for tableNumber",
+                      order.tableNumber
+                    );
+                  }
+                } catch (delErr) {
+                  console.error("Failed to delete dine-in table:", delErr);
+                }
+              }
+          
+              // 3) update local UI state
               setOrders((prev) =>
                 prev.map((o) =>
                   o._id === order._id ? { ...o, status: newStatus } : o
@@ -46,7 +73,7 @@ export default function OrderLine() {
             } catch (err) {
               console.error("Error updating order:", err);
             }
-          }
+          }          
         }, 1000);
 
         return timer;
