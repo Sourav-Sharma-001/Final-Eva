@@ -1,4 +1,5 @@
 const Order = require("../models/order");
+const Table = require("../models/tablesSchema");
 
 // GET /api/analytics/orders
 const getOrderStats = async (req, res) => {
@@ -17,4 +18,39 @@ const getOrderStats = async (req, res) => {
   }
 };
 
-module.exports = { getOrderStats };
+// GET /api/analytics/tables
+const getTables = async (req, res) => {
+  try {
+    const tables = await Table.find();
+    const reserved = tables.filter(t => t.isReserved).map(t => t.tableNumber);
+    res.json({ reserved });
+  } catch (err) {
+    console.error("❌ Error fetching tables:", err);
+    res.status(500).json({ message: "Failed to fetch tables" });
+  }
+};
+
+// GET /api/analytics/chefs-live
+const getChefsLive = async (req, res) => {
+  try {
+    const liveOrders = await Order.find({ status: { $ne: "served" } });
+    
+    const chefCounts = {};
+    liveOrders.forEach((order) => {
+      const chef = order.assignedChef || "Unassigned";
+      chefCounts[chef] = (chefCounts[chef] || 0) + 1;
+    });
+
+    const result = Object.entries(chefCounts).map(([chefName, orders]) => ({
+      chefName,
+      liveOrders: orders,
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("❌ Error fetching live chef orders:", err);
+    res.status(500).json({ message: "Failed to fetch live chef orders" });
+  }
+};
+
+module.exports = { getOrderStats, getTables, getChefsLive };

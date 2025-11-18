@@ -1,79 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./Analytics.css";
 
 export default function Analytics() {
-  const [chefs, setChefs] = useState([
-    { id: 1, name: "Manesh", isBusy: false, orders: 0, availableAt: null },
-    { id: 2, name: "Pritam", isBusy: false, orders: 0, availableAt: null },
-    { id: 3, name: "Yash", isBusy: false, orders: 0, availableAt: null },
-    { id: 4, name: "Tenzen", isBusy: false, orders: 0, availableAt: null },
-  ]);
-
-  // Function to assign chef in round-robin sequence
-const assignChef = (orderTime, cookingTime) => {
-  setChefs((prev) => {
-    // find first available chef in sequence
-    const availableChef = prev.find((c) => !c.isBusy);
-
-    if (availableChef) {
-      // if found, mark him busy
-      return prev.map((chef) =>
-        chef.id === availableChef.id
-          ? {
-              ...chef,
-              isBusy: true,
-              orders: chef.orders + 1,
-              availableAt: orderTime + cookingTime * 60000, // cooking time in ms
-            }
-          : chef
-      );
-    } else {
-      // if all busy, pick one with earliest availability
-      const earliest = [...prev].sort((a, b) => a.availableAt - b.availableAt)[0];
-      return prev.map((chef) =>
-        chef.id === earliest.id
-          ? {
-              ...chef,
-              orders: chef.orders + 1,
-              availableAt: earliest.availableAt + cookingTime * 60000,
-            }
-          : chef
-      );
-    }
+  const [orderStats, setOrderStats] = useState({
+    served: 0,
+    dineIn: 0,
+    takeAway: 0,
+    totalOrders: 0,
   });
-};
-
+  const [revenue, setRevenue] = useState(0);
+  const [reservedTables, setReservedTables] = useState([]);
+  const [chefsLive, setChefsLive] = useState([]);
 
   const tables = Array.from({ length: 30 }, (_, i) => i + 1);
-  const reservedTables = [4, 5, 6, 7, 22, 23, 29, 30];
+
+  const formatNumber = (num) => String(num).padStart(2, "0");
+  const formatRevenue = (amount) =>
+    amount >= 1000 ? `${Math.floor(amount / 1000)}K` : amount;
+
+  useEffect(() => {
+    axios
+      .get("/api/analytics/orders")
+      .then((res) => setOrderStats(res.data))
+      .catch((err) => console.error(err));
+
+    axios
+      .get("/api/analytics/revenue")
+      .then((res) => setRevenue(res.data.amount))
+      .catch((err) => console.error(err));
+
+    axios
+      .get("/api/analytics/tables")
+      .then((res) => setReservedTables(res.data.reserved))
+      .catch((err) => console.error(err));
+
+    axios
+      .get("/api/analytics/chefs-live")
+      .then((res) => setChefsLive(Array.isArray(res.data) ? res.data : []))
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <div className="analytics-container">
       <input className="search-input" placeholder="Filter..." />
       <h2 className="title">Analytics</h2>
 
+      {/* ==== TOP STATS BOXES ==== */}
       <div className="stats">
         <div className="stat-box">
           <div className="icon">🍳</div>
           <div>
-            <h3>04</h3>
+            <h3>{formatNumber(chefsLive.length)}</h3>
             <p>Total Chef</p>
           </div>
         </div>
+
         <div className="stat-box">
           <div className="icon">💰</div>
           <div>
-            <h3>12K</h3>
+            <h3>{formatRevenue(revenue)}</h3>
             <p>Total Revenue</p>
           </div>
         </div>
+
         <div className="stat-box">
           <div className="icon">📦</div>
           <div>
-            <h3>20</h3>
+            <h3>{formatNumber(orderStats.totalOrders)}</h3>
             <p>Total Orders</p>
           </div>
         </div>
+
         <div className="stat-box">
           <div className="icon">👥</div>
           <div>
@@ -83,7 +81,9 @@ const assignChef = (orderTime, cookingTime) => {
         </div>
       </div>
 
+      {/* ==== MIDDLE SECTION (3 cards) ==== */}
       <div className="middle-section">
+        {/* Order Summary */}
         <div className="order-summary card">
           <div className="header">
             <h4>Order Summary</h4>
@@ -93,21 +93,25 @@ const assignChef = (orderTime, cookingTime) => {
               <option>Monthly</option>
             </select>
           </div>
+
           <p className="desc">Summary of order types</p>
+
           <div className="order-stats">
             <div>
-              <h3>09</h3>
+              <h3>{formatNumber(orderStats.served)}</h3>
               <p>Served</p>
             </div>
             <div>
-              <h3>05</h3>
+              <h3>{formatNumber(orderStats.dineIn)}</h3>
               <p>Dine In</p>
             </div>
             <div>
-              <h3>06</h3>
+              <h3>{formatNumber(orderStats.takeAway)}</h3>
               <p>Take Away</p>
             </div>
           </div>
+
+          {/* PIE stays same - not dynamic */}
           <div className="pie">
             <div className="circle"></div>
             <div className="bar">
@@ -117,19 +121,20 @@ const assignChef = (orderTime, cookingTime) => {
                 <div className="bar-line"></div>
               </div>
               <div className="bar-block">
-                <div>Take Away </div>
-                <div>(24%)</div>
+                <div>Dine In </div>
+                <div>(38%)</div>
                 <div className="bar-line"></div>
               </div>
               <div className="bar-block">
-                <div>Take Away </div>
-                <div>(24%)</div>
+                <div>Served </div>
+                <div>(48%)</div>
                 <div className="bar-line"></div>
-              </div>              
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Revenue */}
         <div className="revenue card">
           <div className="header">
             <h4>Revenue</h4>
@@ -140,23 +145,30 @@ const assignChef = (orderTime, cookingTime) => {
             </select>
           </div>
           <p className="desc">Revenue trends over the week</p>
+
           <div className="graph">
             <div className="line"></div>
           </div>
         </div>
 
+        {/* Tables */}
         <div className="tables card">
           <h4>Tables</h4>
+
           <div className="legend">
             <span className="dot reserved"></span> Reserved
             <span className="dot available"></span> Available
           </div>
+
           <div className="table-grid">
             {tables.map((t) => (
               <div
                 key={t}
                 className={`table ${
-                  reservedTables.includes(t) ? "reserved" : "available"
+                  Array.isArray(reservedTables) &&
+                  reservedTables.includes(t)
+                    ? "reserved"
+                    : "available"
                 }`}
               >
                 Table {String(t).padStart(2, "0")}
@@ -166,6 +178,7 @@ const assignChef = (orderTime, cookingTime) => {
         </div>
       </div>
 
+      {/* ==== CHEF TABLE LAST ==== */}
       <div className="chef-table card">
         <table>
           <thead>
@@ -175,10 +188,10 @@ const assignChef = (orderTime, cookingTime) => {
             </tr>
           </thead>
           <tbody>
-            {chefs.map((c, i) => (
+            {chefsLive.map((c, i) => (
               <tr key={i}>
-                <td>{c.name}</td>
-                <td>{String(c.orders).padStart(2, "0")}</td>
+                <td>{c.chefName}</td>
+                <td>{formatNumber(c.liveOrders)}</td>
               </tr>
             ))}
           </tbody>
