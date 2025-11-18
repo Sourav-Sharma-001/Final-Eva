@@ -31,6 +31,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const chefRoutes = require("./routes/chefRoutes");
 const completedOrderRoutes = require("./routes/completedOrderRoutes");
 const tableRoutes = require("./routes/tableRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 app.use("/api/foods", foodRoutes);
 app.use("/api/userDetails", userDetailsRoutes);
@@ -38,6 +39,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/chefs", chefRoutes);
 app.use("/api/completed-orders", completedOrderRoutes);
 app.use("/api/tables", tableRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Auto-free chefs when availableAt expires
 setInterval(async () => {
