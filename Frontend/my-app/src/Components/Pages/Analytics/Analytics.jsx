@@ -51,7 +51,7 @@ export default function Analytics() {
         <div className="stat-box">
           <div className="icon">🍳</div>
           <div>
-            <h3>{formatNumber(chefsLive.length)}</h3>
+          <h3>{formatNumber(4 - chefsLive.length)}</h3>
             <p>Total Chef</p>
           </div>
         </div>
