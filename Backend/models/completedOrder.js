@@ -10,6 +10,7 @@ const CompletedOrderSchema = new mongoose.Schema({
   address: String,
   totalAmount: Number,
   assignedChef: String,
+  party: { type: Number, default: 2 },
   completedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 

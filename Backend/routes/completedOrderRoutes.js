@@ -7,6 +7,9 @@ router.post("/", async (req, res) => {
   try {
     const orderData = req.body;
 
+    // ✅ Make sure party exists
+    orderData.party = orderData.party || 2;
+
     // ✅ Defensive check: ensure required fields exist
     if (!orderData || !orderData.items) {
       return res.status(400).json({ message: "Invalid order data" });
