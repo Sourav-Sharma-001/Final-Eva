@@ -21,24 +21,59 @@ export default function Analytics() {
 
   useEffect(() => {
     axios
-      .get("/api/analytics/orders")
-      .then((res) => setOrderStats(res.data))
+      .get("http://localhost:5000//api/analytics/orders")
+      .then((res) =>
+        setOrderStats(
+          res.data || {
+            served: 0,
+            dineIn: 0,
+            takeAway: 0,
+            totalOrders: 0,
+          }
+        )
+      )
       .catch((err) => console.error(err));
 
     axios
-      .get("/api/analytics/revenue")
-      .then((res) => setRevenue(res.data.amount))
-      .catch((err) => console.error(err));
+      .get("http://localhost:5000/api/analytics/revenue")
+      .then((res) => {
+        const amt = Number(res.data.amount);
+        setRevenue(amt);
+      })
+      .catch((err) => {
+        console.error(err);
+        setRevenue(0);
+      });
 
     axios
-      .get("/api/analytics/tables")
-      .then((res) => setReservedTables(res.data.reserved))
-      .catch((err) => console.error(err));
+      .get("http://localhost:5000//api/analytics/tables")
+      .then((res) => {
+        const reserved = Array.isArray(res?.data?.reserved)
+          ? res.data.reserved
+          : [];
+        // normalize to numbers
+        setReservedTables(reserved.map((r) => Number(r)));
+      })
+      .catch((err) => {
+        console.error(err);
+        setReservedTables([]);
+      });
 
     axios
-      .get("/api/analytics/chefs-live")
-      .then((res) => setChefsLive(Array.isArray(res.data) ? res.data : []))
-      .catch((err) => console.error(err));
+      .get("http://localhost:5000//api/analytics/chefs-live")
+      .then((res) => {
+        const arr = Array.isArray(res?.data) ? res.data : [];
+        setChefsLive(
+          arr.map((c) => ({
+            chefName: c.chefName || "Unassigned",
+            liveOrders: Number(c.liveOrders) || 0,
+          }))
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        setChefsLive([]);
+      });
   }, []);
 
   return (
@@ -51,7 +86,7 @@ export default function Analytics() {
         <div className="stat-box">
           <div className="icon">🍳</div>
           <div>
-          <h3>{formatNumber(4 - chefsLive.length)}</h3>
+            <h3>{formatNumber(4 - chefsLive.length)}</h3>
             <p>Total Chef</p>
           </div>
         </div>
@@ -165,8 +200,7 @@ export default function Analytics() {
               <div
                 key={t}
                 className={`table ${
-                  Array.isArray(reservedTables) &&
-                  reservedTables.includes(t)
+                  Array.isArray(reservedTables) && reservedTables.includes(t)
                     ? "reserved"
                     : "available"
                 }`}

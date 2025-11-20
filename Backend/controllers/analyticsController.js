@@ -1,5 +1,7 @@
 const Order = require("../models/order");
 const Table = require("../models/tablesSchema");
+const CompletedOrder = require("../models/completedOrder");
+
 
 // GET /api/analytics/orders
 const getOrderStats = async (req, res) => {
@@ -53,7 +55,27 @@ const getChefsLive = async (req, res) => {
   }
 };
 
+// GET /api/analytics/revenue
+const getRevenue = async (req, res) => {
+  try {
+    const result = await CompletedOrder.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$totalAmount" }
+        }
+      }
+    ]);
+
+    const totalRevenue = result[0]?.totalRevenue || 0;
+    res.json({ amount: totalRevenue });
+  } catch (err) {
+    console.error("❌ Error fetching total revenue:", err);
+    res.status(500).json({ message: "Failed to fetch total revenue" });
+  }
+};
 
 
 
-module.exports = { getOrderStats, getTables, getChefsLive,  };
+
+module.exports = { getOrderStats, getTables, getChefsLive, getRevenue };

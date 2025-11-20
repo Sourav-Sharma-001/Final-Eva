@@ -11,7 +11,8 @@ router.get("/tables", getTables);
 // GET /api/analytics/chefs-live
 router.get("/chefs-live", getChefsLive);
 
-
+// GET /api/analytics/revenue
+router.get("/revenue", getRevenue);
 
 
 module.exports = router;
