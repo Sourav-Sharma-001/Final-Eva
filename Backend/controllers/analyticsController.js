@@ -6,12 +6,13 @@ const CompletedOrder = require("../models/completedOrder");
 // GET /api/analytics/orders
 const getOrderStats = async (req, res) => {
   try {
-    const orders = await Order.find();
+    const totalOrders = await CompletedOrder.countDocuments();
+
+    const orders = await CompletedOrder.find();
 
     const served = orders.filter(o => o.status === "served").length;
     const dineIn = orders.filter(o => o.orderType === "dine-in").length;
     const takeAway = orders.filter(o => o.orderType === "takeaway").length;
-    const totalOrders = orders.length;
 
     res.json({ served, dineIn, takeAway, totalOrders });
   } catch (err) {
@@ -19,6 +20,7 @@ const getOrderStats = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch order stats" });
   }
 };
+
 
 // GET /api/analytics/tables
 const getTables = async (req, res) => {

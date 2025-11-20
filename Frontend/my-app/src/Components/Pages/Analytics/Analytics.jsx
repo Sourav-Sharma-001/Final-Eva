@@ -21,7 +21,7 @@ export default function Analytics() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000//api/analytics/orders")
+      .get("http://localhost:5000/api/analytics/orders")
       .then((res) =>
         setOrderStats(
           res.data || {
@@ -46,7 +46,7 @@ export default function Analytics() {
       });
 
     axios
-      .get("http://localhost:5000//api/analytics/tables")
+      .get("http://localhost:5000/api/analytics/tables")
       .then((res) => {
         const reserved = Array.isArray(res?.data?.reserved)
           ? res.data.reserved
@@ -60,7 +60,7 @@ export default function Analytics() {
       });
 
     axios
-      .get("http://localhost:5000//api/analytics/chefs-live")
+      .get("http://localhost:5000/api/analytics/chefs-live")
       .then((res) => {
         const arr = Array.isArray(res?.data) ? res.data : [];
         setChefsLive(
