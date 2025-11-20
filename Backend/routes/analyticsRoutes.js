@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getOrderStats, getTables, getChefsLive, getRevenue } = require("../controllers/analyticsController");
+const { getOrderStats, getTables, getChefsLive, getRevenue, getTotalClients } = require("../controllers/analyticsController");
 
 // GET /api/analytics/orders
 router.get("/orders", getOrderStats);
@@ -13,6 +13,10 @@ router.get("/chefs-live", getChefsLive);
 
 // GET /api/analytics/revenue
 router.get("/revenue", getRevenue);
+
+// GET /api/analytics/total-clients
+router.get("/total-clients", getTotalClients);
+
 
 
 module.exports = router;

@@ -12,6 +12,7 @@ export default function Analytics() {
   const [revenue, setRevenue] = useState(0);
   const [reservedTables, setReservedTables] = useState([]);
   const [chefsLive, setChefsLive] = useState([]);
+  const [totalClients, setTotalClients] = useState(0);
 
   const tables = Array.from({ length: 30 }, (_, i) => i + 1);
 
@@ -74,6 +75,14 @@ export default function Analytics() {
         console.error(err);
         setChefsLive([]);
       });
+
+    axios
+      .get("http://localhost:5000/api/analytics/total-clients")
+      .then((res) => setTotalClients(res.data.totalClients || 0))
+      .catch((err) => {
+        console.error(err);
+        setTotalClients(0);
+      });
   }, []);
 
   return (
@@ -110,7 +119,7 @@ export default function Analytics() {
         <div className="stat-box">
           <div className="icon">👥</div>
           <div>
-            <h3>65</h3>
+            <h3>{totalClients}</h3>
             <p>Total Clients</p>
           </div>
         </div>

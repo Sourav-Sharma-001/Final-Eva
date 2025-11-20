@@ -77,7 +77,27 @@ const getRevenue = async (req, res) => {
   }
 };
 
+// GET /api/analytics/total-clients
+const getTotalClients = async (req, res) => {
+  try {
+    const result = await CompletedOrder.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalClients: { $sum: "$party" },
+        },
+      },
+    ]);
+
+    const totalClients = result[0]?.totalClients || 0;
+    res.json({ totalClients });
+  } catch (err) {
+    console.error("❌ Error fetching total clients:", err);
+    res.status(500).json({ message: "Failed to fetch total clients" });
+  }
+};
 
 
 
-module.exports = { getOrderStats, getTables, getChefsLive, getRevenue };
+
+module.exports = { getOrderStats, getTables, getChefsLive, getRevenue, getTotalClients };
