@@ -238,3 +238,52 @@ select {
   padding: 0.5rem;
   border-bottom: 0.05rem solid #ddd;
 }
+
+.pie-dynamic {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.circle-dynamic {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: conic-gradient(#ff9800 40%, #2196f3 60%, #4caf50 100%);
+  box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.bar-dynamic {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bar-block-dynamic {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bar-label {
+  width: 4.5rem;
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.bar-percent {
+  font-size: 0.875rem;
+  color: #555;
+  width: 2.5rem;
+  text-align: right;
+}
+
+.bar-line-dynamic {
+  height: 0.25rem;
+  border-radius: 0.125rem;
+  flex: 1;
+  transition: width 0.5s ease;
+  background: #ccc;
+}

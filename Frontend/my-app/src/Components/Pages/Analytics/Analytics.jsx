@@ -13,6 +13,7 @@ export default function Analytics() {
   const [reservedTables, setReservedTables] = useState([]);
   const [chefsLive, setChefsLive] = useState([]);
   const [totalClients, setTotalClients] = useState(0);
+  const [filter, setFilter] = useState("Daily"); // <-- added filter state
 
   const tables = Array.from({ length: 30 }, (_, i) => i + 1);
 
@@ -20,46 +21,42 @@ export default function Analytics() {
   const formatRevenue = (amount) =>
     amount >= 1000 ? `${Math.floor(amount / 1000)}K` : amount;
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/analytics/orders")
-      .then((res) =>
-        setOrderStats(
-          res.data || {
-            served: 0,
-            dineIn: 0,
-            takeAway: 0,
-            totalOrders: 0,
-          }
-        )
-      )
-      .catch((err) => console.error(err));
+  // Function to fetch orders based on filter
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/analytics/orders?filter=${filter.toLowerCase()}`
+      );
+      setOrderStats(
+        res.data || { served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 }
+      );
+    } catch (err) {
+      console.error(err);
+      setOrderStats({ served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 });
+    }
+  };
 
+  useEffect(() => {
+    fetchOrders(); // fetch orders whenever filter changes
+
+    // Revenue
     axios
       .get("http://localhost:5000/api/analytics/revenue")
-      .then((res) => {
-        const amt = Number(res.data.amount);
-        setRevenue(amt);
-      })
-      .catch((err) => {
-        console.error(err);
-        setRevenue(0);
-      });
+      .then((res) => setRevenue(Number(res.data.amount)))
+      .catch(() => setRevenue(0));
 
+    // Tables
     axios
       .get("http://localhost:5000/api/analytics/tables")
       .then((res) => {
         const reserved = Array.isArray(res?.data?.reserved)
           ? res.data.reserved
           : [];
-        // normalize to numbers
         setReservedTables(reserved.map((r) => Number(r)));
       })
-      .catch((err) => {
-        console.error(err);
-        setReservedTables([]);
-      });
+      .catch(() => setReservedTables([]));
 
+    // Chefs live
     axios
       .get("http://localhost:5000/api/analytics/chefs-live")
       .then((res) => {
@@ -71,19 +68,14 @@ export default function Analytics() {
           }))
         );
       })
-      .catch((err) => {
-        console.error(err);
-        setChefsLive([]);
-      });
+      .catch(() => setChefsLive([]));
 
+    // Total clients
     axios
       .get("http://localhost:5000/api/analytics/total-clients")
       .then((res) => setTotalClients(res.data.totalClients || 0))
-      .catch((err) => {
-        console.error(err);
-        setTotalClients(0);
-      });
-  }, []);
+      .catch(() => setTotalClients(0));
+  }, [filter]);
 
   return (
     <div className="analytics-container">
@@ -131,7 +123,7 @@ export default function Analytics() {
         <div className="order-summary card">
           <div className="header">
             <h4>Order Summary</h4>
-            <select>
+            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
               <option>Daily</option>
               <option>Weekly</option>
               <option>Monthly</option>
@@ -155,24 +147,70 @@ export default function Analytics() {
             </div>
           </div>
 
-          {/* PIE stays same - not dynamic */}
-          <div className="pie">
-            <div className="circle"></div>
-            <div className="bar">
-              <div className="bar-block">
-                <div>Take Away </div>
-                <div>(24%)</div>
-                <div className="bar-line"></div>
-              </div>
-              <div className="bar-block">
-                <div>Dine In </div>
-                <div>(38%)</div>
-                <div className="bar-line"></div>
-              </div>
-              <div className="bar-block">
-                <div>Served </div>
-                <div>(48%)</div>
-                <div className="bar-line"></div>
+          {/* Order Summary Dynamic Visualization */}
+          <div className="pie-dynamic">
+            {/* Pie Circle – Active Orders Only */}
+            <div
+              className="circle-dynamic"
+              style={{
+                background: `conic-gradient(
+                  #ff9800 0deg ${
+                    ((orderStats.takeAway || 0) /
+                      ((orderStats.takeAway || 0) + (orderStats.dineIn || 0))) *
+                      360 || 0
+                  }deg,
+                  #2196f3 ${
+                    ((orderStats.takeAway || 0) /
+                      ((orderStats.takeAway || 0) + (orderStats.dineIn || 0))) *
+                      360 || 0
+                  }deg 360deg
+                )`,
+              }}
+            ></div>
+
+            {/* Bars */}
+            <div className="bar-dynamic">
+              {/* Active Orders */}
+              {["takeAway", "dineIn"].map((type) => {
+                const value = orderStats[type] || 0;
+                const totalActive =
+                  (orderStats.takeAway || 0) + (orderStats.dineIn || 0);
+                const percent = totalActive
+                  ? Math.round((value / totalActive) * 100)
+                  : 0;
+                const label = type === "takeAway" ? "Take Away" : "Dine In";
+                const color = type === "takeAway" ? "#ff9800" : "#2196f3";
+                return (
+                  <div className="bar-block-dynamic" key={type}>
+                    <span className="bar-label">{label}</span>
+                    <span className="bar-percent">({percent}%)</span>
+                    <div
+                      className="bar-line-dynamic"
+                      style={{ width: `${percent}%`, background: color }}
+                    ></div>
+                  </div>
+                );
+              })}
+
+              {/* Served Orders – Separate Bar */}
+              <div className="bar-block-dynamic">
+                <span className="bar-label">Served</span>
+                <span className="bar-percent">({orderStats.served || 0})</span>
+                <div
+                  className="bar-line-dynamic"
+                  style={{
+                    width: `${
+                      orderStats.totalOrders
+                        ? Math.round(
+                            (Number(orderStats.served || 0) /
+                              Number(orderStats.totalOrders)) *
+                              100
+                          )
+                        : 0
+                    }%`,
+                    background: "#4caf50",
+                  }}
+                ></div>
               </div>
             </div>
           </div>
