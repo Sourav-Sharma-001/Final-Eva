@@ -24,22 +24,32 @@ export default function Analytics() {
   // Function to fetch orders based on filter
   const fetchOrders = async () => {
     try {
+      // 1) fetch filtered data (daily/weekly/monthly) or lifetime if filter not matched
       let url = "http://localhost:5000/api/analytics/orders";
-  
       if (filter === "Daily") url = "http://localhost:5000/api/analytics/orders/daily";
       if (filter === "Weekly") url = "http://localhost:5000/api/analytics/orders/weekly";
       if (filter === "Monthly") url = "http://localhost:5000/api/analytics/orders/monthly";
   
       const res = await axios.get(url);
+      const filtered = res.data || { served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 };
   
-      setOrderStats(
-        res.data || { served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 }
-      );
+      // 2) always fetch lifetime totals separately and preserve it
+      const totalRes = await axios.get("http://localhost:5000/api/analytics/orders");
+      const lifetime = totalRes.data || { totalOrders: 0 };
+  
+      // 3) update state: use filtered served/dineIn/takeAway but KEEP lifetime totalOrders
+      setOrderStats({
+        served: filtered.served || 0,
+        dineIn: filtered.dineIn || 0,
+        takeAway: filtered.takeAway || 0,
+        totalOrders: lifetime.totalOrders || 0,
+      });
     } catch (err) {
       console.error(err);
       setOrderStats({ served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 });
     }
-  };  
+  };
+  
 
   useEffect(() => {
     fetchOrders(); // fetch orders whenever filter changes
