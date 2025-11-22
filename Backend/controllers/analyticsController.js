@@ -166,6 +166,62 @@ const getOrderStatsMonthly = async (req, res) => {
   }
 };
 
+// DAILY REVENUE CHART
+const getRevenueDailyChart = async (req, res) => {
+  try {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const result = await CompletedOrder.aggregate([
+      { $match: { completedAt: { $gte: start, $lte: end } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
+
+    res.json({ amount: result[0]?.total || 0 });
+  } catch (err) {
+    res.status(500).json({ message: "Failed daily revenue chart" });
+  }
+};
+
+// WEEKLY REVENUE CHART
+const getRevenueWeeklyChart = async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now);
+    start.setDate(now.getDate() - 7);
+
+    const result = await CompletedOrder.aggregate([
+      { $match: { completedAt: { $gte: start, $lte: now } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
+
+    res.json({ amount: result[0]?.total || 0 });
+  } catch (err) {
+    res.status(500).json({ message: "Failed weekly revenue chart" });
+  }
+};
+
+// MONTHLY REVENUE CHART
+const getRevenueMonthlyChart = async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const result = await CompletedOrder.aggregate([
+      { $match: { completedAt: { $gte: start, $lte: now } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
+
+    res.json({ amount: result[0]?.total || 0 });
+  } catch (err) {
+    res.status(500).json({ message: "Failed monthly revenue chart" });
+  }
+};
+
+
 
 module.exports = { 
   getOrderStats, 
@@ -175,5 +231,8 @@ module.exports = {
   getTotalClients, 
   getOrderStatsDaily, 
   getOrderStatsWeekly, 
-  getOrderStatsMonthly 
+  getOrderStatsMonthly,
+  getRevenueDailyChart,
+  getRevenueWeeklyChart,
+  getRevenueMonthlyChart 
 };

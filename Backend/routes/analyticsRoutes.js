@@ -8,7 +8,10 @@ const {
   getTotalClients, 
   getOrderStatsDaily, 
   getOrderStatsWeekly, 
-  getOrderStatsMonthly 
+  getOrderStatsMonthly,
+  getRevenueDailyChart,
+  getRevenueWeeklyChart,
+  getRevenueMonthlyChart  
 } = require("../controllers/analyticsController");
 
 // GET /api/analytics/orders
@@ -30,6 +33,9 @@ router.get("/orders/daily", getOrderStatsDaily);
 router.get("/orders/weekly", getOrderStatsWeekly);
 router.get("/orders/monthly", getOrderStatsMonthly);
 
+router.get("/revenue/daily-chart", getRevenueDailyChart);
+router.get("/revenue/weekly-chart", getRevenueWeeklyChart);
+router.get("/revenue/monthly-chart", getRevenueMonthlyChart);
 
 
 module.exports = router;
