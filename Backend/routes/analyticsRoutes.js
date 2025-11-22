@@ -1,6 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { getOrderStats, getTables, getChefsLive, getRevenue, getTotalClients } = require("../controllers/analyticsController");
+const { 
+  getOrderStats, 
+  getTables, 
+  getChefsLive, 
+  getRevenue, 
+  getTotalClients, 
+  getOrderStatsDaily, 
+  getOrderStatsWeekly, 
+  getOrderStatsMonthly 
+} = require("../controllers/analyticsController");
 
 // GET /api/analytics/orders
 router.get("/orders", getOrderStats);
@@ -16,6 +25,10 @@ router.get("/revenue", getRevenue);
 
 // GET /api/analytics/total-clients
 router.get("/total-clients", getTotalClients);
+
+router.get("/orders/daily", getOrderStatsDaily);
+router.get("/orders/weekly", getOrderStatsWeekly);
+router.get("/orders/monthly", getOrderStatsMonthly);
 
 
 

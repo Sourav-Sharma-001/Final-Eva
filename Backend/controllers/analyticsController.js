@@ -97,7 +97,83 @@ const getTotalClients = async (req, res) => {
   }
 };
 
+// DAILY served/dine-in/takeaway
+const getOrderStatsDaily = async (req, res) => {
+  try {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const orders = await CompletedOrder.find({
+      completedAt: { $gte: start, $lte: end }
+    });
+
+    res.json({
+      served: orders.length,
+      dineIn: orders.filter(o => o.orderType === "dine-in").length,
+      takeAway: orders.filter(o => o.orderType === "takeaway").length,
+      totalOrders: orders.length
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed daily stats" });
+  }
+};
 
 
+// WEEKLY
+const getOrderStatsWeekly = async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now);
+    start.setDate(now.getDate() - 7);
 
-module.exports = { getOrderStats, getTables, getChefsLive, getRevenue, getTotalClients };
+    const orders = await CompletedOrder.find({
+      completedAt: { $gte: start, $lte: now }
+    });
+
+    res.json({
+      served: orders.length,
+      dineIn: orders.filter(o => o.orderType === "dine-in").length,
+      takeAway: orders.filter(o => o.orderType === "takeaway").length,
+      totalOrders: orders.length
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed weekly stats" });
+  }
+};
+
+
+// MONTHLY
+const getOrderStatsMonthly = async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const orders = await CompletedOrder.find({
+      completedAt: { $gte: start, $lte: now }
+    });
+
+    res.json({
+      served: orders.length,
+      dineIn: orders.filter(o => o.orderType === "dine-in").length,
+      takeAway: orders.filter(o => o.orderType === "takeaway").length,
+      totalOrders: orders.length
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed monthly stats" });
+  }
+};
+
+
+module.exports = { 
+  getOrderStats, 
+  getTables, 
+  getChefsLive, 
+  getRevenue, 
+  getTotalClients, 
+  getOrderStatsDaily, 
+  getOrderStatsWeekly, 
+  getOrderStatsMonthly 
+};

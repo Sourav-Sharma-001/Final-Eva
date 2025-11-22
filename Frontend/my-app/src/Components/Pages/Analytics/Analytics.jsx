@@ -24,9 +24,14 @@ export default function Analytics() {
   // Function to fetch orders based on filter
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/analytics/orders?filter=${filter.toLowerCase()}`
-      );
+      let url = "http://localhost:5000/api/analytics/orders";
+  
+      if (filter === "Daily") url = "http://localhost:5000/api/analytics/orders/daily";
+      if (filter === "Weekly") url = "http://localhost:5000/api/analytics/orders/weekly";
+      if (filter === "Monthly") url = "http://localhost:5000/api/analytics/orders/monthly";
+  
+      const res = await axios.get(url);
+  
       setOrderStats(
         res.data || { served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 }
       );
@@ -34,7 +39,7 @@ export default function Analytics() {
       console.error(err);
       setOrderStats({ served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 });
     }
-  };
+  };  
 
   useEffect(() => {
     fetchOrders(); // fetch orders whenever filter changes
