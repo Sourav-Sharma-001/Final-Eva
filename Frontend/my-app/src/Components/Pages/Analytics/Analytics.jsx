@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Analytics.css";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
+
 
 export default function Analytics() {
   const [orderStats, setOrderStats] = useState({
@@ -10,10 +20,12 @@ export default function Analytics() {
     totalOrders: 0,
   });
   const [revenue, setRevenue] = useState(0);
+  const [revenueChart, setRevenueChart] = useState([]);
   const [reservedTables, setReservedTables] = useState([]);
   const [chefsLive, setChefsLive] = useState([]);
   const [totalClients, setTotalClients] = useState(0);
-  const [filter, setFilter] = useState("Daily"); // <-- added filter state
+  const [filter, setFilter] = useState("Daily");
+  const [revenueFilter, setRevenueFilter] = useState("Daily");
 
   const tables = Array.from({ length: 30 }, (_, i) => i + 1);
 
@@ -26,17 +38,27 @@ export default function Analytics() {
     try {
       // 1) fetch filtered data (daily/weekly/monthly) or lifetime if filter not matched
       let url = "http://localhost:5000/api/analytics/orders";
-      if (filter === "Daily") url = "http://localhost:5000/api/analytics/orders/daily";
-      if (filter === "Weekly") url = "http://localhost:5000/api/analytics/orders/weekly";
-      if (filter === "Monthly") url = "http://localhost:5000/api/analytics/orders/monthly";
-  
+      if (filter === "Daily")
+        url = "http://localhost:5000/api/analytics/orders/daily";
+      if (filter === "Weekly")
+        url = "http://localhost:5000/api/analytics/orders/weekly";
+      if (filter === "Monthly")
+        url = "http://localhost:5000/api/analytics/orders/monthly";
+
       const res = await axios.get(url);
-      const filtered = res.data || { served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 };
-  
+      const filtered = res.data || {
+        served: 0,
+        dineIn: 0,
+        takeAway: 0,
+        totalOrders: 0,
+      };
+
       // 2) always fetch lifetime totals separately and preserve it
-      const totalRes = await axios.get("http://localhost:5000/api/analytics/orders");
+      const totalRes = await axios.get(
+        "http://localhost:5000/api/analytics/orders"
+      );
       const lifetime = totalRes.data || { totalOrders: 0 };
-  
+
       // 3) update state: use filtered served/dineIn/takeAway but KEEP lifetime totalOrders
       setOrderStats({
         served: filtered.served || 0,
@@ -49,10 +71,35 @@ export default function Analytics() {
       setOrderStats({ served: 0, dineIn: 0, takeAway: 0, totalOrders: 0 });
     }
   };
-  
+
+  const fetchRevenueChart = async () => {
+    try {
+      let url = "http://localhost:5000/api/analytics/revenue/daily-chart";
+      if (revenueFilter === "Weekly")
+        url = "http://localhost:5000/api/analytics/revenue/weekly-chart";
+      if (revenueFilter === "Monthly")
+        url = "http://localhost:5000/api/analytics/revenue/monthly-chart";
+
+      const res = await axios.get(url);
+      const amount = Number(res.data?.amount || 0);
+      const label =
+        revenueFilter === "Daily"
+          ? "Today"
+          : revenueFilter === "Weekly"
+          ? "Last 7 days"
+          : "This month";
+
+      // Put a single-item array (Option A: single bar)
+      setRevenueChart([{ label, amount }]);
+    } catch (err) {
+      console.error(err);
+      setRevenueChart([]);
+    }
+  };
 
   useEffect(() => {
     fetchOrders(); // fetch orders whenever filter changes
+    fetchRevenueChart();
 
     // Revenue
     axios
@@ -90,7 +137,7 @@ export default function Analytics() {
       .get("http://localhost:5000/api/analytics/total-clients")
       .then((res) => setTotalClients(res.data.totalClients || 0))
       .catch(() => setTotalClients(0));
-  }, [filter]);
+  }, [filter, revenueFilter]);
 
   return (
     <div className="analytics-container">
@@ -231,22 +278,49 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Revenue */}
-        <div className="revenue card">
-          <div className="header">
-            <h4>Revenue</h4>
-            <select>
-              <option>Daily</option>
-              <option>Weekly</option>
-              <option>Monthly</option>
-            </select>
-          </div>
-          <p className="desc">Revenue trends over the week</p>
+       {/* Revenue */}
+<div className="revenue card">
+  <div className="header">
+    <h4>Revenue</h4>
+    <select
+      value={revenueFilter}
+      onChange={(e) => setRevenueFilter(e.target.value)}
+    >
+      <option>Daily</option>
+      <option>Weekly</option>
+      <option>Monthly</option>
+    </select>
+  </div>
 
-          <div className="graph">
-            <div className="line"></div>
-          </div>
-        </div>
+  <p className="desc">Revenue trends over the week</p>
+
+  <div
+    className="chart-flex"
+    style={{ width: "100%", height: "14rem" }}
+  >
+    <ResponsiveContainer width="100%" aspect={3}>
+      <LineChart data={revenueChart}>
+        <CartesianGrid strokeDasharray="3 3" />
+        
+        {/* FIXED: your x-axis uses `label`, not `day` */}
+        <XAxis dataKey="label" />
+
+        <YAxis />
+        <Tooltip />
+
+        <Line
+          type="monotone"
+          dataKey="amount"
+          stroke="#4e79a7"
+          strokeWidth={3}
+          dot={{ r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+
 
         {/* Tables */}
         <div className="tables card">

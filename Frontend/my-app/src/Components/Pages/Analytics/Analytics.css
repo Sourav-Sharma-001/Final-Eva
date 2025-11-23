@@ -287,3 +287,18 @@ select {
   transition: width 0.5s ease;
   background: #ccc;
 }
+
+/* Makes only the chart card stretchy */
+.chart-card {
+  flex: 1 1 auto;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inner wrapper grows naturally, no fixed size */
+.chart-flex {
+  flex: 1 1 auto;
+  min-height: 12rem; /* flexible, safe height */
+}
+
