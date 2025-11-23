@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Analytics from "./Components/Pages/Analytics/Analytics";
 import Sidebar from "./Components/Sidebar/Sidebar";
-import "./App.css"; // optional: if you have styles for App
+import "./App.css";
 import Tables from "./Components/Pages/Tables/Tables";
 import OrderLine from "./Components/Pages/OrderLIne/OrderLIne";
 import FoodItems from "./Components/Pages/FoodItems/FoodItems";
