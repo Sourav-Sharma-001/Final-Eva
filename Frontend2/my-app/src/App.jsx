@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import PlaceOrder from "./Components/PlaceOrder/PlaceOrder";
+import PlaceOrder from "./Components/PlaceOrder/PlaceOrder.jsx";
 import Menu from "./Components/Menu/Menu";
 import Thanks from "./Components/Thanks/Thanks";
 
