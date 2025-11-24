@@ -191,7 +191,7 @@ export default function Menu() {
           </div>
         </div>
 
-        <button className="next-btn" onClick={() => navigate("/placeOrder")}>
+        <button className="next-btn" onClick={() => navigate("/place-order")}>
           Next
         </button>
       </div>
