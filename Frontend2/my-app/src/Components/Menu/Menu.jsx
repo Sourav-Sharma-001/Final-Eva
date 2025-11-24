@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import "./Menu.css";
-const API_URL = import.meta.env.VITE_API_URL;
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../ContextAPI/CartContext";
 import toast from "react-hot-toast";
+const API_URL = import.meta.env.VITE_API_URL;
 
 
 export default function Menu() {
@@ -13,6 +13,8 @@ export default function Menu() {
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
   const { addToCart, setUserInfo } = useContext(CartContext);
+
+
 
   const navigate = useNavigate();
 

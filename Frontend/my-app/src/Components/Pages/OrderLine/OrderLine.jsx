@@ -5,10 +5,12 @@ import axios from "axios";
 export default function OrderLine() {
   const [orders, setOrders] = useState([]);
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/orders");
+        const res = await axios.get(`${BASE_URL}/api/orders`);
         setOrders(res.data);
       } catch (err) {
         console.error("Error fetching orders:", err);
@@ -35,7 +37,7 @@ export default function OrderLine() {
                 order.orderType === "takeaway" ? "not picked up" : "served";
           
               // 1) update order status on server
-              await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
+              await axios.put(`${BASE_URL}/api/orders/${order._id}`, {
                 status: newStatus,
               });
           
@@ -43,7 +45,7 @@ export default function OrderLine() {
               if (order.orderType === "dine-in") {
                 try {
                   // fetch tables and find the dine-in table with this tableNumber
-                  const tablesRes = await axios.get("http://localhost:5000/api/tables");
+                  const tablesRes = await axios.get(`${BASE_URL}/api/tables`);
                   const table = tablesRes.data.find(
                     (t) => t.tableNumber === order.tableNumber && t.type === "dine-in"
                   );
@@ -51,7 +53,7 @@ export default function OrderLine() {
                   if (table && table._id) {
                     // call backend delete for dine-in table by its _id
                     await axios.delete(
-                      `http://localhost:5000/api/tables/dinein/${table._id}`
+                      `${BASE_URL}/api/tables/dinein/${table._id}`
                     );
                   } else {
                     console.warn(
@@ -179,7 +181,7 @@ export default function OrderLine() {
                       try {
                         // move to completed (best-effort)
                         await axios.post(
-                          "http://localhost:5000/api/completed-orders",
+                          `${BASE_URL}/api/completed-orders`,
                           order
                         );
                       } catch (err) {
@@ -189,7 +191,7 @@ export default function OrderLine() {
                       try {
                         // delete from active orders
                         await axios.delete(
-                          `http://localhost:5000/api/orders/${order._id}`
+                          `${BASE_URL}/api/orders/${order._id}`
                         );
                       } catch (err) {
                         console.error("Failed to delete order:", err);

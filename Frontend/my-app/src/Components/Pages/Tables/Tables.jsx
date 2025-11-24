@@ -10,6 +10,8 @@ export default function Tables() {
   const [newTable, setNewTable] = useState({ name: "", chairs: 3 });
   const modalRef = useRef(null);
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
   // ✅ Fetch all tables
   useEffect(() => {
     fetchTables();
@@ -17,7 +19,7 @@ export default function Tables() {
 
   const fetchTables = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tables");
+      const res = await axios.get(`${BASE_URL}/api/tables`);
       setTables(res.data);
     } catch (err) {
       console.error("Error fetching tables:", err);
@@ -32,7 +34,7 @@ export default function Tables() {
         alert("Cannot delete reserved dine-in table.");
         return;
       }
-      await axios.delete(`http://localhost:5000/api/tables/manual/${id}`);
+      await axios.delete(`${BASE_URL}/api/tables/manual/${id}`);
       fetchTables();
     } catch (err) {
       console.error("Error deleting table:", err);
@@ -44,7 +46,7 @@ const createTable = async () => {
   if (tables.length >= 30) return alert("Maximum table limit reached (30)");
 
   try {
-    await axios.post("http://localhost:5000/api/tables", {
+    await axios.post(`${BASE_URL}/api/tables`, {
       name: newTable.name,
       chairs: newTable.chairs,
     });

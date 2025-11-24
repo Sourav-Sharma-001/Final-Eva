@@ -27,6 +27,8 @@ export default function Analytics() {
   const [filter, setFilter] = useState("Daily");
   const [revenueFilter, setRevenueFilter] = useState("Daily");
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
   const tables = Array.from({ length: 30 }, (_, i) => i + 1);
 
   const formatNumber = (num) => String(num).padStart(2, "0");
@@ -37,13 +39,13 @@ export default function Analytics() {
   const fetchOrders = async () => {
     try {
       // 1) fetch filtered data (daily/weekly/monthly) or lifetime if filter not matched
-      let url = "http://localhost:5000/api/analytics/orders";
+      let url = `${BASE_URL}/api/analytics/orders`;
       if (filter === "Daily")
-        url = "http://localhost:5000/api/analytics/orders/daily";
+        url = `${BASE_URL}/api/analytics/orders/daily`;
       if (filter === "Weekly")
-        url = "http://localhost:5000/api/analytics/orders/weekly";
+        url = `${BASE_URL}/api/analytics/orders/weekly`;
       if (filter === "Monthly")
-        url = "http://localhost:5000/api/analytics/orders/monthly";
+        url = `${BASE_URL}/api/analytics/orders/monthly`;
 
       const res = await axios.get(url);
       const filtered = res.data || {
@@ -55,7 +57,7 @@ export default function Analytics() {
 
       // 2) always fetch lifetime totals separately and preserve it
       const totalRes = await axios.get(
-        "http://localhost:5000/api/analytics/orders"
+        `${BASE_URL}/api/analytics/orders`
       );
       const lifetime = totalRes.data || { totalOrders: 0 };
 
@@ -74,11 +76,11 @@ export default function Analytics() {
 
   const fetchRevenueChart = async () => {
     try {
-      let url = "http://localhost:5000/api/analytics/revenue/daily-chart";
+      let url = `${BASE_URL}/api/analytics/revenue/daily-chart`;
       if (revenueFilter === "Weekly")
-        url = "http://localhost:5000/api/analytics/revenue/weekly-chart";
+        url = `${BASE_URL}/api/analytics/revenue/weekly-chart`;
       if (revenueFilter === "Monthly")
-        url = "http://localhost:5000/api/analytics/revenue/monthly-chart";
+        url = `${BASE_URL}/api/analytics/revenue/monthly-chart`;
 
       const res = await axios.get(url);
       const amount = Number(res.data?.amount || 0);
@@ -103,13 +105,13 @@ export default function Analytics() {
 
     // Revenue
     axios
-      .get("http://localhost:5000/api/analytics/revenue")
+      .get(`${BASE_URL}/api/analytics/revenue`)
       .then((res) => setRevenue(Number(res.data.amount)))
       .catch(() => setRevenue(0));
 
     // Tables
     axios
-      .get("http://localhost:5000/api/analytics/tables")
+      .get(`${BASE_URL}/api/analytics/tables`)
       .then((res) => {
         const reserved = Array.isArray(res?.data?.reserved)
           ? res.data.reserved
@@ -120,7 +122,7 @@ export default function Analytics() {
 
     // Chefs live
     axios
-      .get("http://localhost:5000/api/analytics/chefs-live")
+      .get(`${BASE_URL}/api/analytics/chefs-live`)
       .then((res) => {
         const arr = Array.isArray(res?.data) ? res.data : [];
         setChefsLive(
@@ -134,7 +136,7 @@ export default function Analytics() {
 
     // Total clients
     axios
-      .get("http://localhost:5000/api/analytics/total-clients")
+      .get(`${BASE_URL}/api/analytics/total-clients`)
       .then((res) => setTotalClients(res.data.totalClients || 0))
       .catch(() => setTotalClients(0));
   }, [filter, revenueFilter]);
