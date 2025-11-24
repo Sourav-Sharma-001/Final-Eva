@@ -3,7 +3,7 @@ import Analytics from "./Components/Pages/Analytics/Analytics";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import "./App.css";
 import Tables from "./Components/Pages/Tables/Tables";
-import OrderLine from "./Components/Pages/OrderLIne/OrderLIne";
+import OrderLine from "./Components/Pages/OrderLine/OrderLine";
 import FoodItems from "./Components/Pages/FoodItems/FoodItems";
 
 function App() {
